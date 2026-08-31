@@ -16,7 +16,7 @@
       </div>
 
       <div class="hero-media">
-        <img src="https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?auto=format&fit=crop&w=1500&q=85" alt="Portrait africain pour l'introduction de Racines">
+        <img src="https://images.unsplash.com/photo-1521119989659-a83eee488004?auto=format&fit=crop&w=1500&q=85" alt="Portrait africain pour l'introduction de Béninto">
         <button class="play" aria-label="Lire la vidéo d'introduction"></button>
         <div class="video-caption">
           <span class="tag">Film d'ouverture · 01:42</span>

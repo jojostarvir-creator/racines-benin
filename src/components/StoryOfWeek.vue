@@ -8,7 +8,7 @@
 
       <article class="feature">
         <div class="feature-img">
-          <img src="https://images.unsplash.com/photo-1524498250077-390f9e378fc0?auto=format&fit=crop&w=1400&q=85" alt="Scène culturelle africaine">
+          <img src="https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&w=1400&q=85" alt="Portrait, famille Houédji">
         </div>
         <div class="feature-body">
           <div class="eyebrow">Cette semaine</div>

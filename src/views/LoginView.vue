@@ -33,7 +33,8 @@ async function submit() {
     error.value = result.error
     return
   }
-  router.push(route.query.redirect || { name: 'search' })
+
+  router.push(route.query.redirect || { name: 'dashboard' })
 }
 </script>
 

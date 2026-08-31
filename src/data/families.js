@@ -8,7 +8,7 @@ export const featuredFamilies = [
     desc: "Lignée de notables et de passeurs de mémoire au cœur de Porto-Novo."
   },
   {
-    img: "https://images.unsplash.com/photo-1547471080-7cc2caa01a2f?auto=format&fit=crop&w=800&q=85",
+    img: "https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&w=800&q=85",
     alt: "Paysage africain",
     badge: "Atacora",
     origin: "Peuple Somba",
@@ -16,7 +16,7 @@ export const featuredFamilies = [
     desc: "Bâtisseurs de tata somba et gardiens des rites de passage."
   },
   {
-    img: "https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=800&q=85",
+    img: "https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=800&q=85",
     alt: "Tradition et culture africaine",
     badge: "Mono",
     origin: "Peuple Adja",
@@ -32,7 +32,7 @@ export const featuredFamilies = [
     desc: "Cavaliers et conteurs, dépositaires de la geste de Nikki."
   },
   {
-    img: "https://images.unsplash.com/photo-1533130061792-64b345e4a833?auto=format&fit=crop&w=800&q=85",
+    img: "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?auto=format&fit=crop&w=800&q=85",
     alt: "Côte et paysage tropical",
     badge: "Atlantique",
     origin: "Côte de Ouidah",

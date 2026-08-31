@@ -21,19 +21,22 @@ function handleLogout() {
 <template>
   <header>
     <div class="container nav">
-      <RouterLink class="logo" to="/" @click="close">
-        <span class="logo-mark"><span></span><span></span><span></span></span>
-        Racines
+      <RouterLink class="logo logo-full" to="/" @click="close" aria-label="Béninto">
+        <span class="logo-stack">
+          <span class="logo-word"></span>
+          <span class="logo-tagline"></span>
+        </span>
       </RouterLink>
       <nav class="nav-links">
-        <RouterLink to="/#familles">Familles</RouterLink>
+        <RouterLink to="/">Accueil</RouterLink>
+        <RouterLink to="/familles">Familles</RouterLink>
         <RouterLink to="/#territoires">Territoires</RouterLink>
-        <RouterLink to="/#territoires">Carte</RouterLink>
-        <RouterLink to="/#methode">Méthode</RouterLink>
+        <RouterLink to="/#methode">À propos</RouterLink>
+        <RouterLink v-if="isAuthenticated" to="/mon-espace" class="nav-link-active">Ma famille</RouterLink>
       </nav>
       <div class="nav-actions">
         <template v-if="isAuthenticated">
-          <RouterLink class="btn btn-light" to="/recherche">Mon histoire</RouterLink>
+          <RouterLink class="btn btn-light" to="/mon-espace">Mon espace</RouterLink>
           <button class="btn btn-yellow" type="button" @click="handleLogout">Se déconnecter</button>
         </template>
         <template v-else>
@@ -54,13 +57,14 @@ function handleLogout() {
 
     <div class="nav-mobile" :class="{ open }">
       <div class="container nav-mobile-inner">
+        <RouterLink to="/" @click="close">Accueil</RouterLink>
         <RouterLink to="/#familles" @click="close">Familles</RouterLink>
         <RouterLink to="/#territoires" @click="close">Territoires</RouterLink>
-        <RouterLink to="/#carte" @click="close">Carte</RouterLink>
-        <RouterLink to="/#methode" @click="close">Méthode</RouterLink>
+        <RouterLink to="/#methode" @click="close">À propos</RouterLink>
+        <RouterLink v-if="isAuthenticated" to="/mon-espace" class="nav-link-active" @click="close">Ma famille</RouterLink>
         <div class="nav-mobile-actions">
           <template v-if="isAuthenticated">
-            <RouterLink class="btn btn-light" to="/recherche" @click="close">Mon histoire</RouterLink>
+            <RouterLink class="btn btn-light" to="/mon-espace" @click="close">Mon espace</RouterLink>
             <button class="btn btn-yellow" type="button" @click="handleLogout">Se déconnecter</button>
           </template>
           <template v-else>

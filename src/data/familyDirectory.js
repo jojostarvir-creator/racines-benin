@@ -10,15 +10,20 @@ export function slugify(name) {
 }
 
 const IMAGE_POOL = [
+  // Landscape-oriented images are prioritised here: this pool feeds
+  // `family.image`, which is displayed as a wide hero banner (dashboard,
+  // family page) — a tight face portrait gets its subject cropped out by
+  // object-fit:cover at that aspect ratio and just reads as an empty
+  // gradient, so scene/landscape shots hold up far better at this size.
   'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1533130061792-64b345e4a833?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=1400&q=85',
   'https://images.unsplash.com/photo-1489493887464-892be6d1daae?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1547471080-7cc2caa01a2f?auto=format&fit=crop&w=1400&q=85',
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1539650116574-75c0c6d73f6e?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1524498250077-390f9e378fc0?auto=format&fit=crop&w=1400&q=85',
-  'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1531891437562-4301cf35b7e4?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1531384441138-2736e62e0919?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=1400&q=85',
 ]
 
 const ethnicGroupProfiles = {
@@ -31,6 +36,7 @@ const ethnicGroupProfiles = {
     ],
     timelinePool: [
       ["Époque du royaume du Danxomè", "La famille s'inscrit dans la vie de la cour ou des cultes vodoun de la région."],
+      ["XIXe siècle", "La lignée s'agrandit et étend son influence dans plusieurs villages voisins."],
       ["Période coloniale", "La lignée traverse les bouleversements administratifs tout en conservant son nom et ses usages."],
       ["Indépendance du Bénin", "Les descendants s'installent dans les grandes villes tout en gardant un lien avec le village d'origine."],
       ["Milieu du XXe siècle", "La famille voit certains de ses membres rejoindre l'administration ou le commerce naissant."],
@@ -47,6 +53,7 @@ const ethnicGroupProfiles = {
     timelinePool: [
       ["Migrations depuis Tado", "Les ancêtres quittent Tado et s'installent progressivement dans la région."],
       ["Fondation du village", "La famille participe à la fondation d'une communauté le long des cours d'eau."],
+      ["XIXe siècle", "La famille développe ses cultures vivrières et ses cultes agraires."],
       ["Période coloniale", "La lignée conserve ses cultes et son nom malgré les bouleversements administratifs."],
       ["XXe siècle", "Certains membres de la famille migrent vers les villes côtières."],
       ["Aujourd'hui", "Les cérémonies familiales continuent de rassembler la lignée chaque année."]
@@ -62,6 +69,7 @@ const ethnicGroupProfiles = {
     timelinePool: [
       ["Installation dans la région", "La famille s'établit parmi les communautés nago de l'est du pays."],
       ["Échanges avec le pays yoruba", "Des liens commerciaux et religieux se tissent avec les cités yoruba voisines."],
+      ["XIXe siècle", "La famille prend part aux échanges religieux entre les cultes locaux et voisins."],
       ["Période coloniale", "La lignée conserve sa langue et ses cultes malgré les frontières nouvellement tracées."],
       ["XXe siècle", "La famille s'agrandit et essaime vers Porto-Novo et les villes du Plateau."],
       ["Aujourd'hui", "Les descendants perpétuent certains rites et fêtes traditionnelles nago."]
@@ -76,6 +84,7 @@ const ethnicGroupProfiles = {
     ],
     timelinePool: [
       ["Fondation des royaumes bariba", "Les ancêtres participent à la vie des royaumes fondateurs du Borgou."],
+      ["XVIIIe siècle", "La famille consolide son rang parmi les lignées de cavaliers reconnues."],
       ["Époque des grandes courses", "La famille se distingue par ses cavaliers lors des fêtes de la Gaani."],
       ["Période coloniale", "La lignée conserve son rang et ses traditions malgré l'administration coloniale."],
       ["XXe siècle", "Certains descendants rejoignent l'administration ou l'agriculture dans la région de Parakou."],
@@ -92,6 +101,7 @@ const ethnicGroupProfiles = {
     timelinePool: [
       ["Installation le long du fleuve", "Les ancêtres s'établissent le long des routes commerciales du Nord-Est."],
       ["Essor du commerce caravanier", "La famille prospère grâce aux échanges entre la vallée du Niger et l'intérieur des terres."],
+      ["XIXe siècle", "La famille étend son réseau commercial vers les marchés voisins."],
       ["Période coloniale", "La lignée s'adapte aux nouvelles frontières et continue son activité commerciale."],
       ["XXe siècle", "Certains membres de la famille s'installent à Malanville et dans les communes voisines."],
       ["Aujourd'hui", "La famille reste connue pour son sens du commerce et de l'hospitalité."]
@@ -107,6 +117,7 @@ const ethnicGroupProfiles = {
     timelinePool: [
       ["Grandes transhumances", "Les ancêtres parcourent les pâturages du nord au fil des saisons."],
       ["Installation progressive", "La famille s'établit durablement autour de points d'eau et de marchés."],
+      ["XIXe siècle", "La famille tisse des liens avec les communautés sédentaires voisines."],
       ["Période coloniale", "La lignée conserve son mode de vie malgré les nouvelles frontières administratives."],
       ["XXe siècle", "Certains membres se sédentarisent tandis que d'autres perpétuent l'élevage."],
       ["Aujourd'hui", "La famille garde un lien fort avec le bétail et les traditions pastorales."]
@@ -122,6 +133,7 @@ const ethnicGroupProfiles = {
     timelinePool: [
       ["Installation dans les montagnes", "Les ancêtres s'établissent dans les massifs de l'Atacora."],
       ["Édification des tata somba", "La famille participe à la construction de ces maisons-forteresses caractéristiques."],
+      ["XIXe siècle", "La famille devient référence pour l'édification des tata de la région."],
       ["Période coloniale", "La lignée résiste aux tentatives d'assimilation tout en préservant ses rites."],
       ["XXe siècle", "Les rites de passage transmis par la famille rassemblent encore tout le village."],
       ["Aujourd'hui", "La famille perpétue les cérémonies initiatiques propres à la région."]
@@ -137,6 +149,7 @@ const ethnicGroupProfiles = {
     timelinePool: [
       ["Installation sur la côte", "Les ancêtres s'établissent le long du littoral et des rives du Mono."],
       ["Essor du commerce côtier", "La famille développe des activités liées à la pêche et aux échanges maritimes."],
+      ["XIXe siècle", "La famille étend ses activités de pêche et de commerce le long de la côte."],
       ["Période coloniale", "La lignée conserve ses cultes malgré les bouleversements de l'époque."],
       ["XXe siècle", "Certains membres de la famille migrent vers Grand-Popo et Comè."],
       ["Aujourd'hui", "La famille perpétue les cérémonies liées au fleuve et à la mer."]
@@ -332,14 +345,13 @@ function buildGeneratedProfile(entry) {
   const dept = departmentData[entry.department]
   const localities = dept?.stories?.map((s) => s[1]) ?? [entry.department]
   const locality = pick(rng, localities)
-  const pool = profile.timelinePool
-  const start = Math.floor(rng() * pool.length)
-  const timeline = [0, 1, 2].map((i) => pool[(start + i) % pool.length])
+  const timeline = profile.timelinePool
 
   return {
     slug: slugify(entry.name),
     name: entry.name,
     department: entry.department,
+    ethnicGroup: entry.ethnicGroup,
     locality: `${locality} · ${entry.department}`,
     origin: profile.originLabel,
     duration: `${10 + Math.floor(rng() * 12)} min`,
@@ -351,6 +363,40 @@ function buildGeneratedProfile(entry) {
     timeline,
     generated: true,
   }
+}
+
+// One dominant ethnic group per department, used only to give a name that
+// isn't in our curated/generated directory a plausible (clearly generated)
+// profile — so a personal dashboard can always be built for whichever name
+// someone actually registers with.
+const DEPARTMENT_ETHNIC_GROUP = {
+  "Alibori": "Dendi",
+  "Atacora": "Somba",
+  "Donga": "Yoruba-Nago",
+  "Borgou": "Bariba",
+  "Collines": "Fon",
+  "Zou": "Fon",
+  "Couffo": "Adja",
+  "Mono": "Mina",
+  "Atlantique": "Fon",
+  "Ouémé": "Yoruba-Nago",
+  "Plateau": "Yoruba-Nago",
+  "Littoral": "Fon",
+}
+
+export function getOrCreateFamily(name) {
+  const existing = findFamily(name)
+  if (existing) return existing
+  if (!name || !name.trim()) return null
+
+  const rng = mulberry32(hashString(normalize(name)))
+  const departments = Object.keys(DEPARTMENT_ETHNIC_GROUP)
+  const department = departments[Math.floor(rng() * departments.length)]
+  return buildGeneratedProfile({
+    name: name.trim(),
+    department,
+    ethnicGroup: DEPARTMENT_ETHNIC_GROUP[department],
+  })
 }
 
 export function findFamily(query) {
@@ -379,4 +425,27 @@ export function getFamilyBySlug(slug) {
 
 export function directorySize() {
   return registeredFamilies.length + directory.length
+}
+
+export function allFamilies() {
+  const curated = registeredFamilies.map((f) => ({
+    name: f.name,
+    slug: f.slug,
+    department: f.department,
+    origin: f.origin,
+    image: f.image,
+    verified: true,
+  }))
+  const generated = directory.map((f) => {
+    const rng = mulberry32(hashString(normalize(f.name)))
+    return {
+      name: f.name,
+      slug: slugify(f.name),
+      department: f.department,
+      origin: ethnicGroupProfiles[f.ethnicGroup]?.originLabel ?? f.ethnicGroup,
+      image: pick(rng, IMAGE_POOL),
+      verified: false,
+    }
+  })
+  return [...curated, ...generated].sort((a, b) => a.name.localeCompare(b.name, 'fr'))
 }
