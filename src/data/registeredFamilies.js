@@ -2,22 +2,22 @@ export const registeredFamilies = [
   {
     slug: "houedji",
     name: "Houédji",
-    department: "Zou",
-    locality: "Abomey · Zou",
+    department: "Atlantique",
+    locality: "Ouidah · Atlantique",
     origin: "Danxomè",
     duration: "18 min",
     generations: 9,
     members: 42,
-    tagline: "Gardien·ne·s de la mémoire d'Abomey",
-    description: "Depuis la cour du roi Ghézo jusqu'aux ateliers de tenture d'aujourd'hui, une lignée transmet un savoir-faire textile et un devoir de mémoire qui traversent les générations.",
+    tagline: "Négociants et bâtisseurs, de Ouidah à Cotonou",
+    description: "Depuis l'installation du fondateur Ahahnanzo Houédji à Ouidah jusqu'à l'essor de la famille à Cotonou, une lignée de négociants transmet un devoir de mémoire qui traverse les générations.",
     image: "https://images.unsplash.com/photo-1523805009345-7448845a9e53?auto=format&fit=crop&w=1400&q=85",
     timeline: [
-      ["Règne de Ghézo", "La famille s'installe comme tisserands attitrés de la cour royale d'Abomey."],
-      ["Fin du XIXe siècle", "L'atelier familial s'agrandit et forme ses premiers apprentis extérieurs."],
-      ["Début du XXe siècle", "Transmission du métier de tenturier de mère en fille sur quatre générations."],
-      ["Milieu du XXe siècle", "Une branche de la famille s'installe à Cotonou pour vendre les tentures."],
-      ["Création de l'association", "La famille fonde une association pour documenter son histoire."],
-      ["Aujourd'hui", "L'atelier familial forme encore de jeunes apprentis à Abomey."]
+      ["Vers 1840", "Ahahnanzo Houédji s'installe à Ouidah comme commerçant et y fonde la lignée familiale."],
+      ["1912", "Naissance de Hounsou Houédji, qui perpétue l'activité commerciale de la famille à Ouidah."],
+      ["1945", "Une branche de la famille quitte Ouidah pour s'installer à Cotonou."],
+      ["1970", "La famille s'établit définitivement à Cotonou et s'implique dans différents secteurs d'activités."],
+      ["2001", "Création de l'association « Famille Houédji » pour préserver l'histoire et les valeurs familiales."],
+      ["Aujourd'hui", "Les descendants font vivre cet héritage entre Ouidah, Cotonou et la diaspora."]
     ]
   },
   {

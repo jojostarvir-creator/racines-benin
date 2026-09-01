@@ -13,10 +13,10 @@
         <div class="feature-body">
           <div class="eyebrow">Cette semaine</div>
           <h3>La famille Houédji</h3>
-          <div class="origin">Gardien·ne·s de la mémoire d'Abomey</div>
-          <p class="desc">Depuis la cour du roi Ghézo jusqu'aux ateliers de tenture d'aujourd'hui, une lignée transmet un savoir-faire textile et un devoir de mémoire qui traversent les générations.</p>
+          <div class="origin">Négociants et bâtisseurs, de Ouidah à Cotonou</div>
+          <p class="desc">Depuis l'installation du fondateur Ahahnanzo Houédji à Ouidah jusqu'à l'essor de la famille à Cotonou, une lignée de négociants transmet un devoir de mémoire qui traverse les générations.</p>
           <div class="meta">
-            <div><small>Localité</small><strong>Abomey · Zou</strong></div>
+            <div><small>Localité</small><strong>Ouidah · Atlantique</strong></div>
             <div><small>Origine</small><strong>Danxomè</strong></div>
             <div><small>Durée</small><strong>18 min</strong></div>
           </div>

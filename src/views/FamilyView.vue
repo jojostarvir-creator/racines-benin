@@ -45,7 +45,7 @@ function scrollToVideos() {
     <section class="family-hero">
       <img :src="family.image" :alt="`Famille ${family.name}`" class="family-hero-bg">
       <div class="family-hero-scrim"></div>
-      <div class="container family-hero-inner">
+      <div class="container family-hero-inner px-6">
         <div class="family-hero-copy">
           <span class="family-hero-pill">Famille</span>
           <h1>Famille {{ family.name }}</h1>
