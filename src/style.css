@@ -1782,3 +1782,23 @@ footer{padding:55px 0 30px}
 @media(max-width:600px){
   .container{width:min(var(--max),calc(100% - 34px))}
 }
+
+.free-story-notice{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  background:var(--yellow-soft);border-radius:16px;padding:16px 22px;margin:16px 0;
+}
+.free-story-notice span{font-size:13px;font-weight:600;color:#5C4600}
+.free-story-notice .btn{flex-shrink:0;white-space:nowrap}
+@media(max-width:600px){
+  .free-story-notice{padding:14px 16px}
+  .free-story-notice .btn{width:100%;text-align:center}
+}
+
+.password-checklist{list-style:none;display:flex;flex-direction:column;gap:5px;margin:8px 0 4px;padding:0}
+.password-checklist li{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}
+.password-checklist li.ok{color:#1E6B45}
+.password-checklist .check-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--line);flex-shrink:0;display:grid;place-items:center;font-size:9px;color:transparent}
+.password-checklist li.ok .check-dot{background:#1E6B45;border-color:#1E6B45;color:#fff}
+.password-match{font-size:11px;margin:6px 0 4px}
+.password-match.ok{color:#1E6B45}
+.password-match.bad{color:var(--red)}

@@ -1,4 +1,5 @@
 import { reactive, computed } from 'vue'
+import { setFavoritesUser } from './favorites.js'
 
 const USERS_KEY = 'racines_users'
 const SESSION_KEY = 'racines_session'
@@ -55,6 +56,7 @@ try {
 } catch {
   state.currentUser = null
 }
+setFavoritesUser(state.currentUser?.email ?? null)
 
 function persistSession() {
   if (state.currentUser) {
@@ -83,6 +85,7 @@ export async function register({ fullName, familyName, email, password }) {
   saveUsers(users)
   state.currentUser = { fullName: fullName.trim(), familyName: familyName.trim(), email: normalizedEmail }
   persistSession()
+  setFavoritesUser(normalizedEmail)
   return { ok: true }
 }
 
@@ -98,12 +101,14 @@ export async function login({ email, password }) {
   }
   state.currentUser = { fullName: user.fullName, familyName: user.familyName, email: user.email }
   persistSession()
+  setFavoritesUser(user.email)
   return { ok: true }
 }
 
 export function logout() {
   state.currentUser = null
   persistSession()
+  setFavoritesUser(null)
 }
 
 export function useAuth() {

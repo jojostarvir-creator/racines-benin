@@ -3,11 +3,15 @@ import { computed, ref } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { getFamilyBySlug } from '../data/familyDirectory.js'
 import { enrichFamily } from '../data/familyProfileExtras.js'
+import { useAuth } from '../store/auth.js'
 import BeninSilhouette from '../components/BeninSilhouette.vue'
 
 const route = useRoute()
 const family = computed(() => getFamilyBySlug(route.params.slug))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
+
+const { isAuthenticated } = useAuth()
+const showFreeStoryNotice = computed(() => !isAuthenticated.value)
 
 const archiveTabs = ["Toutes", "Photo", "Lettre", "Acte", "Document", "Objet"]
 const activeTab = ref("Toutes")
@@ -40,6 +44,13 @@ function scrollToVideos() {
       <RouterLink to="/recherche">Familles</RouterLink>
       <span>›</span>
       <span>Famille {{ family.name }}</span>
+    </div>
+
+    <div v-if="showFreeStoryNotice" class="container">
+      <div class="free-story-notice">
+        <span>👋 Vous consultez votre histoire gratuite. Créez un compte pour découvrir toutes les autres familles.</span>
+        <RouterLink class="btn btn-yellow" :to="{ name: 'register', query: { redirect: route.fullPath } }">Créer mon compte →</RouterLink>
+      </div>
     </div>
 
     <section class="family-hero">

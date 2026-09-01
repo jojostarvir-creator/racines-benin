@@ -16,6 +16,7 @@ import SettingsView from '../views/SettingsView.vue'
 import FamiliesDirectoryView from '../views/FamiliesDirectoryView.vue'
 import FavoritesView from '../views/FavoritesView.vue'
 import { useAuth } from '../store/auth.js'
+import { getUnlockedSlug, unlockSlug } from '../store/freeStory.js'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -24,7 +25,7 @@ const router = createRouter({
     { path: '/inscription', name: 'register', component: RegisterView },
     { path: '/connexion', name: 'login', component: LoginView },
     { path: '/recherche', name: 'search', component: SearchView, meta: { requiresAuth: true } },
-    { path: '/famille/:slug', name: 'family', component: FamilyView, meta: { requiresAuth: true } },
+    { path: '/famille/:slug', name: 'family', component: FamilyView },
     { path: '/mon-espace', name: 'dashboard', component: DashboardView, meta: { requiresAuth: true, layout: 'dashboard' } },
     { path: '/mon-espace/arbre', name: 'tree', component: TreeView, meta: { requiresAuth: true, layout: 'dashboard' } },
     { path: '/mon-espace/membres', name: 'members', component: MembersListView, meta: { requiresAuth: true, layout: 'dashboard' } },
@@ -46,8 +47,24 @@ const router = createRouter({
 })
 
 router.beforeEach((to) => {
+  const { isAuthenticated } = useAuth()
+
+  if ((to.name === 'register' || to.name === 'login') && isAuthenticated.value) {
+    return to.query.redirect || { name: 'dashboard' }
+  }
+
+  if (to.name === 'family' && !isAuthenticated.value) {
+    const slug = to.params.slug
+    const unlockedSlug = getUnlockedSlug()
+    if (!unlockedSlug) {
+      unlockSlug(slug)
+    } else if (unlockedSlug !== slug) {
+      return { name: 'register', query: { redirect: to.fullPath } }
+    }
+    return
+  }
+
   if (to.meta.requiresAuth) {
-    const { isAuthenticated } = useAuth()
     if (!isAuthenticated.value) {
       return { name: 'register', query: { redirect: to.fullPath } }
     }

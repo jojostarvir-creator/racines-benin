@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter, useRoute, RouterLink } from 'vue-router'
 import { register, passwordIssues, isValidEmail } from '../store/auth.js'
 
@@ -15,6 +15,14 @@ const showPassword = ref(false)
 
 const error = ref('')
 const submitting = ref(false)
+
+const passwordChecks = computed(() => [
+  { label: 'Au moins 8 caractères', ok: password.value.length >= 8 },
+  { label: 'Une lettre', ok: /[a-zA-Z]/.test(password.value) },
+  { label: 'Un chiffre', ok: /[0-9]/.test(password.value) },
+])
+const passwordsMatch = computed(() => confirmPassword.value.length > 0 && confirmPassword.value === password.value)
+const passwordsMismatch = computed(() => confirmPassword.value.length > 0 && confirmPassword.value !== password.value)
 
 function clientErrors() {
   if (!fullName.value.trim()) return 'Merci de renseigner votre nom complet.'
@@ -80,6 +88,11 @@ async function submit() {
               {{ showPassword ? 'Masquer' : 'Afficher' }}
             </button>
           </div>
+          <ul v-if="password.length" class="password-checklist">
+            <li v-for="check in passwordChecks" :key="check.label" :class="{ ok: check.ok }">
+              <span class="check-dot">✓</span>{{ check.label }}
+            </li>
+          </ul>
 
           <label class="login-label" for="confirm-password">Confirmer le mot de passe</label>
           <input
@@ -89,6 +102,8 @@ async function submit() {
             class="login-input"
             autocomplete="new-password"
           >
+          <p v-if="passwordsMatch" class="password-match ok">✓ Les mots de passe correspondent</p>
+          <p v-else-if="passwordsMismatch" class="password-match bad">Les mots de passe ne correspondent pas encore</p>
 
           <p v-if="error" class="login-error">{{ error }}</p>
 
