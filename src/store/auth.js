@@ -111,6 +111,43 @@ export function logout() {
   setFavoritesUser(null)
 }
 
+export function updateProfile({ fullName, avatar }) {
+  if (!state.currentUser) return { ok: false, error: 'Non connecté·e.' }
+  const users = loadUsers()
+  const user = users.find((u) => u.email === state.currentUser.email)
+  if (fullName !== undefined && fullName.trim()) {
+    state.currentUser.fullName = fullName.trim()
+    if (user) user.fullName = fullName.trim()
+  }
+  if (avatar !== undefined) {
+    state.currentUser.avatar = avatar
+    if (user) user.avatar = avatar
+  }
+  if (user) saveUsers(users)
+  persistSession()
+  return { ok: true }
+}
+
+export async function changePassword({ currentPassword, newPassword }) {
+  if (!state.currentUser) return { ok: false, error: 'Non connecté·e.' }
+  const users = loadUsers()
+  const user = users.find((u) => u.email === state.currentUser.email)
+  if (!user) return { ok: false, error: 'Compte introuvable.' }
+  const attemptHash = await hashPassword(currentPassword, user.salt)
+  if (attemptHash !== user.passwordHash) {
+    return { ok: false, error: 'Mot de passe actuel incorrect.' }
+  }
+  const issues = passwordIssues(newPassword)
+  if (issues.length) {
+    return { ok: false, error: `Le nouveau mot de passe doit contenir ${issues.join(', ')}.` }
+  }
+  const salt = randomSalt()
+  user.salt = salt
+  user.passwordHash = await hashPassword(newPassword, salt)
+  saveUsers(users)
+  return { ok: true }
+}
+
 export function useAuth() {
   return {
     currentUser: computed(() => state.currentUser),

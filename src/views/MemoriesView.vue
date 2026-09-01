@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuth } from '../store/auth.js'
 import { getOrCreateFamily } from '../data/familyDirectory.js'
 import { enrichFamily, MEMORY_TYPES, MEMORY_CATEGORIES } from '../data/familyProfileExtras.js'
@@ -8,12 +9,13 @@ import DashboardSidebar from '../components/DashboardSidebar.vue'
 import QuickAddModal from '../components/QuickAddModal.vue'
 import Icon from '../components/Icon.vue'
 
+const route = useRoute()
 const { currentUser } = useAuth()
 
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { space, addMember, addPhoto } =
+const { space, addMember, addMemory } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=80'
@@ -30,7 +32,7 @@ const normalizedMemories = computed(() => {
   }))
 })
 
-const activeType = ref('Toutes')
+const activeType = ref(typeof route.query.type === 'string' && MEMORY_TYPES.some((t) => t.id === route.query.type) ? route.query.type : 'Toutes')
 const categoryFilter = ref('')
 const yearFilter = ref('')
 const memberFilter = ref('')
@@ -98,9 +100,32 @@ function submitMember(payload) {
   addMember(payload)
   modal.value = null
 }
+function newMemoryDefaults() {
+  return {
+    type: 'Photo',
+    category: MEMORY_CATEGORIES[0],
+    author: currentUser.value?.fullName ?? 'Vous',
+    authorId: null,
+    authorPhoto: currentUser.value?.avatar ?? FALLBACK_IMAGE,
+    year: String(new Date().getFullYear()),
+    place: extras.value?.localities?.[0] ?? '—',
+  }
+}
 function submitPhoto(payload) {
-  addPhoto(payload)
+  addMemory({ ...newMemoryDefaults(), title: payload.caption || 'Souvenir de famille', image: payload.src })
   modal.value = null
+}
+
+const importInput = ref(null)
+function submitImport(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    addMemory({ ...newMemoryDefaults(), title: file.name.replace(/\.[^.]+$/, ''), image: reader.result })
+  }
+  reader.readAsDataURL(file)
+  e.target.value = ''
 }
 </script>
 
@@ -130,7 +155,8 @@ function submitPhoto(payload) {
               </div>
               <div class="stories-head-actions">
                 <button type="button" class="btn btn-yellow" @click="modal = 'photo'"><Icon name="upload" /> Ajouter un souvenir</button>
-                <button type="button" class="btn btn-light"><Icon name="upload" /> Importer</button>
+                <button type="button" class="btn btn-light" @click="importInput?.click()"><Icon name="upload" /> Importer</button>
+                <input ref="importInput" type="file" accept="image/*" class="settings-file-input" @change="submitImport">
               </div>
             </div>
 
@@ -209,7 +235,7 @@ function submitPhoto(payload) {
                   <p>Gérez vos fichiers et libérez de l'espace.</p>
                 </div>
               </div>
-              <button type="button" class="dashboard-add-link">Gérer le stockage →</button>
+              <RouterLink to="/mon-espace/parametres#gestion-donnees" class="dashboard-add-link">Gérer le stockage →</RouterLink>
             </div>
 
             <div class="dashboard-card">

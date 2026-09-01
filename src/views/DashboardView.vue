@@ -160,7 +160,7 @@ const sidebarCollapsed = ref(false)
           <section id="photos" class="dashboard-card">
             <div class="dashboard-card-head">
               <h2>Photos de famille</h2>
-              <button type="button" class="dashboard-add-link" @click="openModal('photo')">Voir tout →</button>
+              <RouterLink to="/mon-espace/souvenirs?type=Photo" class="dashboard-add-link">Voir tout →</RouterLink>
             </div>
             <div class="dashboard-photo-wrap">
               <button type="button" class="carousel-arrow prev dashboard-arrow" @click="scrollPhotos(-1)">‹</button>
@@ -211,7 +211,7 @@ const sidebarCollapsed = ref(false)
           <section class="dashboard-card">
             <div class="dashboard-card-head">
               <h2>Vidéos</h2>
-              <button type="button" class="dashboard-add-link" @click="openModal('video')">Voir tout →</button>
+              <RouterLink to="/mon-espace/souvenirs?type=Vidéo" class="dashboard-add-link">Voir tout →</RouterLink>
             </div>
             <div class="dashboard-video-grid">
               <div class="dashboard-video" v-for="video in space.videos" :key="video.id">
@@ -246,7 +246,7 @@ const sidebarCollapsed = ref(false)
             <strong><Icon name="shield" /> Vos données sont précieuses</strong>
             <p>Cet espace est privé et sécurisé. Vous contrôlez qui peut voir chaque information.</p>
           </div>
-          <span class="btn btn-yellow">Gérer les accès</span>
+          <RouterLink to="/mon-espace/parametres#confidentialite" class="btn btn-yellow">Gérer les accès</RouterLink>
         </div>
       </main>
     </div>

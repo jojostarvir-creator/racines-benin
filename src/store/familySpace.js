@@ -76,6 +76,10 @@ export function useFamilySpace(email, family, extras) {
     space.photos.unshift({ id: crypto.randomUUID(), ...photo })
     save()
   }
+  function addMemory(memory) {
+    space.memories.unshift({ id: crypto.randomUUID(), ...memory })
+    save()
+  }
   function addDocument(doc) {
     space.documents.unshift({ id: crypto.randomUUID(), ...doc })
     save()
@@ -92,8 +96,25 @@ export function useFamilySpace(email, family, extras) {
     space.timeline.push({ id: crypto.randomUUID(), ...event })
     save()
   }
+  function updateInCollection(collectionName, id, patch) {
+    const item = space[collectionName].find((entry) => entry.id === id)
+    if (item) Object.assign(item, patch)
+    save()
+  }
+  function removeFromCollection(collectionName, id) {
+    const idx = space[collectionName].findIndex((entry) => entry.id === id)
+    if (idx !== -1) space[collectionName].splice(idx, 1)
+    save()
+  }
+  function updateDocument(id, patch) { updateInCollection('documents', id, patch) }
+  function removeDocument(id) { removeFromCollection('documents', id) }
+  function updateTimelineEvent(id, patch) { updateInCollection('timeline', id, patch) }
+  function removeTimelineEvent(id) { removeFromCollection('timeline', id) }
 
-  return { space, addMember, updateMember, addPhoto, addDocument, addStory, addVideo, addTimelineEvent }
+  return {
+    space, addMember, updateMember, addPhoto, addMemory, addDocument, addStory, addVideo, addTimelineEvent,
+    updateDocument, removeDocument, updateTimelineEvent, removeTimelineEvent,
+  }
 }
 
 export function fileToDataUrl(file) {

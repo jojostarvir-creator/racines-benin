@@ -13,7 +13,7 @@ const { currentUser } = useAuth()
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { space, addTimelineEvent, addMember } =
+const { space, addTimelineEvent, addMember, updateTimelineEvent, removeTimelineEvent } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=80'
@@ -84,6 +84,34 @@ function submitMember(payload) {
   addMember(payload)
   modal.value = null
 }
+
+const editingEvent = ref(false)
+function openEditEvent() {
+  editingEvent.value = true
+}
+function submitEditEvent(payload) {
+  if (selectedEvent.value) updateTimelineEvent(selectedEvent.value.id, payload)
+  editingEvent.value = false
+}
+function deleteEvent() {
+  if (!selectedEvent.value) return
+  if (!confirm(`Supprimer l'événement « ${selectedEvent.value.title} » ? Cette action est irréversible.`)) return
+  removeTimelineEvent(selectedEvent.value.id)
+  selectedId.value = null
+}
+
+function exportTimeline() {
+  if (!space || !family.value) return
+  const lines = normalizedEvents.value.map((e) => `${e.year} — ${e.title}\n${e.description}\n`)
+  const content = `Ligne du temps — Famille ${family.value.name}\n${normalizedEvents.value.length} événements\n\n${lines.join('\n')}`
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `chronologie-${family.value.slug}.txt`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 </script>
 
 <template>
@@ -112,14 +140,12 @@ function submitMember(payload) {
               </div>
               <div class="stories-head-actions">
                 <button type="button" class="btn btn-yellow" @click="modal = 'event'"><Icon name="upload" /> Ajouter un événement</button>
-                <button type="button" class="btn btn-light"><Icon name="upload" /> Exporter la chronologie</button>
+                <button type="button" class="btn btn-light" @click="exportTimeline"><Icon name="upload" /> Exporter la chronologie</button>
               </div>
             </div>
 
             <div class="stories-filters">
-              <select class="stories-filter-select">
-                <option>Vue chronologique</option>
-              </select>
+              <span class="tree-view-label">Vue chronologique</span>
               <select v-model="typeFilter" class="stories-filter-select">
                 <option value="">Tous les types</option>
                 <option v-for="b in TIMELINE_BADGES" :key="b" :value="b">{{ b }}</option>
@@ -215,8 +241,8 @@ function submitMember(payload) {
                 </div>
               </div>
 
-              <button type="button" class="timeline-detail-action"><Icon name="edit" /> Modifier cet événement</button>
-              <button type="button" class="timeline-detail-action danger"><Icon name="trash" /> Supprimer cet événement</button>
+              <button type="button" class="timeline-detail-action" @click="openEditEvent"><Icon name="settings" /> Modifier cet événement</button>
+              <button type="button" class="timeline-detail-action danger" @click="deleteEvent"><Icon name="trash" /> Supprimer cet événement</button>
             </div>
           </aside>
         </div>
@@ -225,5 +251,6 @@ function submitMember(payload) {
 
     <QuickAddModal v-if="modal === 'event'" type="event" @close="modal = null" @submit="submitEvent" />
     <QuickAddModal v-if="modal === 'member'" type="member" @close="modal = null" @submit="submitMember" />
+    <QuickAddModal v-if="editingEvent" type="edit-event" :initial="selectedEvent" @close="editingEvent = false" @submit="submitEditEvent" />
   </div>
 </template>

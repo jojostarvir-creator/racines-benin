@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
-import { getFamilyBySlug } from '../data/familyDirectory.js'
+import { getFamilyBySlug, slugify } from '../data/familyDirectory.js'
 import { enrichFamily } from '../data/familyProfileExtras.js'
 import { useAuth } from '../store/auth.js'
 import BeninSilhouette from '../components/BeninSilhouette.vue'
@@ -10,8 +10,9 @@ const route = useRoute()
 const family = computed(() => getFamilyBySlug(route.params.slug))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { isAuthenticated } = useAuth()
+const { isAuthenticated, currentUser } = useAuth()
 const showFreeStoryNotice = computed(() => !isAuthenticated.value)
+const isOwnFamily = computed(() => isAuthenticated.value && currentUser.value && family.value && slugify(currentUser.value.familyName) === family.value.slug)
 
 const archiveTabs = ["Toutes", "Photo", "Lettre", "Acte", "Document", "Objet"]
 const activeTab = ref("Toutes")
@@ -33,6 +34,14 @@ const extraits = ["1:35", "2:10", "1:48", "2:35"]
 const videosRef = ref(null)
 function scrollToVideos() {
   videosRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+const lightbox = ref(null)
+function openLightbox(image, title, subtitle) {
+  lightbox.value = { image, title, subtitle }
+}
+function closeLightbox() {
+  lightbox.value = null
 }
 </script>
 
@@ -138,7 +147,8 @@ function scrollToVideos() {
             </div>
           </div>
 
-          <RouterLink to="/recherche" class="btn btn-yellow tree-more">Voir l'arbre complet ⤢</RouterLink>
+          <RouterLink v-if="isOwnFamily" to="/mon-espace/arbre" class="btn btn-yellow tree-more">Voir l'arbre complet ⤢</RouterLink>
+          <RouterLink v-else to="/recherche" class="btn btn-light tree-more">Découvrir votre propre arbre →</RouterLink>
         </div>
       </div>
     </section>
@@ -160,7 +170,10 @@ function scrollToVideos() {
       <div class="container family-media-grid">
         <div class="family-videos" ref="videosRef">
           <h2>Vidéos</h2>
-          <button type="button" class="video-main">
+          <button
+            type="button" class="video-main"
+            @click="openLightbox(family.image, `L'histoire de la famille ${family.name}`, 'Épisode complet · 18 min')"
+          >
             <img :src="family.image" :alt="`Vidéo famille ${family.name}`">
             <span class="video-play"></span>
             <span class="video-caption-text">
@@ -170,7 +183,10 @@ function scrollToVideos() {
           </button>
           <div class="video-row-label">Épisodes</div>
           <div class="video-thumbs">
-            <div class="video-thumb" v-for="(ep, i) in episodes" :key="i">
+            <button
+              type="button" class="video-thumb" v-for="(ep, i) in episodes" :key="i"
+              @click="openLightbox(extras.archives[i % extras.archives.length].image, ep.title, `Épisode 0${i + 1} · ${ep.duration}`)"
+            >
               <img :src="extras.archives[i % extras.archives.length].image" alt="">
               <span class="video-play small"></span>
               <span class="video-thumb-caption">
@@ -178,17 +194,20 @@ function scrollToVideos() {
                 {{ ep.title }}
                 <em>{{ ep.duration }}</em>
               </span>
-            </div>
+            </button>
           </div>
 
           <div class="video-row-label">Extraits</div>
           <div class="video-extraits">
-            <div class="video-extrait" v-for="(clip, i) in extraits" :key="i">
+            <button
+              type="button" class="video-extrait" v-for="(clip, i) in extraits" :key="i"
+              @click="openLightbox(extras.archives[(i + 2) % extras.archives.length].image, `Extrait ${i + 1}`, clip)"
+            >
               <img :src="extras.archives[(i + 2) % extras.archives.length].image" alt="">
               <span class="video-extrait-time">{{ clip }}</span>
-            </div>
+            </button>
           </div>
-          <RouterLink to="/recherche" class="archive-more">Voir tous les extraits →</RouterLink>
+          <RouterLink v-if="isOwnFamily" to="/mon-espace/souvenirs" class="archive-more">Voir tous les extraits →</RouterLink>
         </div>
 
         <div class="family-archives">
@@ -212,7 +231,7 @@ function scrollToVideos() {
               </div>
             </div>
           </div>
-          <RouterLink to="/recherche" class="archive-more">Voir toutes les archives →</RouterLink>
+          <RouterLink v-if="isOwnFamily" to="/mon-espace/documents" class="archive-more">Voir toutes les archives →</RouterLink>
         </div>
       </div>
     </section>
@@ -252,6 +271,17 @@ function scrollToVideos() {
 
     <div class="container family-footer-nav">
       <RouterLink to="/recherche" class="back-link">← Chercher une autre famille</RouterLink>
+    </div>
+
+    <div v-if="lightbox" class="modal-backdrop" @click.self="closeLightbox">
+      <div class="video-lightbox">
+        <button type="button" class="modal-close video-lightbox-close" @click="closeLightbox">✕</button>
+        <img :src="lightbox.image" :alt="lightbox.title">
+        <div class="video-lightbox-caption">
+          <strong>{{ lightbox.title }}</strong>
+          <small>{{ lightbox.subtitle }}</small>
+        </div>
+      </div>
     </div>
   </div>
 

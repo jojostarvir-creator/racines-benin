@@ -5,6 +5,7 @@ import { getOrCreateFamily } from '../data/familyDirectory.js'
 import { enrichFamily, STORY_THEMES } from '../data/familyProfileExtras.js'
 import { useFamilySpace } from '../store/familySpace.js'
 import DashboardSidebar from '../components/DashboardSidebar.vue'
+import QuickAddModal from '../components/QuickAddModal.vue'
 import Icon from '../components/Icon.vue'
 
 const { currentUser } = useAuth()
@@ -12,7 +13,7 @@ const { currentUser } = useAuth()
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { space } =
+const { space, addStory } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=80'
@@ -94,6 +95,52 @@ const recentStories = computed(() => {
 function loadMore() {
   visibleExtra.value += 6
 }
+
+const shareModal = ref(false)
+function submitShare(payload) {
+  addStory({
+    type: 'Anecdote',
+    theme: STORY_THEMES[0]?.id ?? 'quotidien',
+    title: payload.title,
+    text: payload.text,
+    excerpt: payload.text,
+    author: payload.author || currentUser.value?.fullName || 'Vous',
+    authorId: null,
+    authorPhoto: currentUser.value?.avatar ?? FALLBACK_IMAGE,
+    date: new Date().toISOString().slice(0, 10),
+    readTime: '3 min',
+    comments: 0,
+    image: FALLBACK_IMAGE,
+    media: payload.audio ? 'audio' : null,
+  })
+  shareModal.value = false
+}
+
+const importInput = ref(null)
+function submitImport(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  const reader = new FileReader()
+  reader.onload = () => {
+    addStory({
+      type: 'Anecdote',
+      theme: STORY_THEMES[0]?.id ?? 'quotidien',
+      title: file.name.replace(/\.[^.]+$/, ''),
+      text: 'Histoire importée.',
+      excerpt: 'Histoire importée.',
+      author: currentUser.value?.fullName ?? 'Vous',
+      authorId: null,
+      authorPhoto: currentUser.value?.avatar ?? FALLBACK_IMAGE,
+      date: new Date().toISOString().slice(0, 10),
+      readTime: '3 min',
+      comments: 0,
+      image: reader.result,
+      media: null,
+    })
+  }
+  reader.readAsDataURL(file)
+  e.target.value = ''
+}
 </script>
 
 <template>
@@ -119,8 +166,9 @@ function loadMore() {
                 <p>Découvrez et partagez les récits, souvenirs et anecdotes qui font la richesse de notre histoire familiale.</p>
               </div>
               <div class="stories-head-actions">
-                <button type="button" class="btn btn-yellow"><Icon name="upload" /> Partager une histoire</button>
-                <button type="button" class="btn btn-light"><Icon name="upload" /> Importer</button>
+                <button type="button" class="btn btn-yellow" @click="shareModal = true"><Icon name="upload" /> Partager une histoire</button>
+                <button type="button" class="btn btn-light" @click="importInput?.click()"><Icon name="upload" /> Importer</button>
+                <input ref="importInput" type="file" accept="image/*" class="settings-file-input" @change="submitImport">
               </div>
             </div>
 
@@ -148,7 +196,7 @@ function loadMore() {
 
             <div v-if="featured" class="stories-featured-row">
               <article class="stories-featured-card">
-                <button type="button" class="stories-expand-btn"><Icon name="expand" /></button>
+                <RouterLink :to="`/mon-espace/membre/${featured.authorId}`" class="stories-expand-btn" aria-label="Voir l'histoire en entier"><Icon name="expand" /></RouterLink>
                 <img :src="featured.image" :alt="featured.title">
                 <div class="stories-featured-overlay">
                   <span class="stories-badge on-image">{{ featured.type.toUpperCase() }}</span>
@@ -250,11 +298,13 @@ function loadMore() {
             <div class="stories-privacy-card">
               <strong><Icon name="shield" /> Espace privé &amp; sécurisé</strong>
               <p>Vos histoires sont protégées et partagées uniquement avec les membres autorisés de la famille.</p>
-              <button type="button" class="stories-privacy-link">Gérer les accès →</button>
+              <RouterLink to="/mon-espace/parametres#confidentialite" class="stories-privacy-link">Gérer les accès →</RouterLink>
             </div>
           </aside>
         </div>
       </main>
     </div>
+
+    <QuickAddModal v-if="shareModal" type="anecdote" @close="shareModal = false" @submit="submitShare" />
   </div>
 </template>

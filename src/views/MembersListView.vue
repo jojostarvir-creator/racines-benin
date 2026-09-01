@@ -1,11 +1,13 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuth } from '../store/auth.js'
 import { getOrCreateFamily } from '../data/familyDirectory.js'
 import { enrichFamily } from '../data/familyProfileExtras.js'
 import { useFamilySpace } from '../store/familySpace.js'
 import DashboardSidebar from '../components/DashboardSidebar.vue'
 
+const route = useRoute()
 const { currentUser } = useAuth()
 
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
@@ -14,7 +16,7 @@ const extras = computed(() => (family.value ? enrichFamily(family.value) : null)
 const { space } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
 
-const query = ref('')
+const query = ref(typeof route.query.q === 'string' ? route.query.q : '')
 const filtered = computed(() => {
   const q = query.value.trim().toLowerCase()
   if (!space) return []

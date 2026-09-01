@@ -16,6 +16,7 @@ const titles = {
   video: 'Ajouter une vidéo',
   event: 'Ajouter un événement',
   'edit-member': 'Modifier les informations',
+  'edit-event': "Modifier l'événement",
 }
 
 const init = props.initial ?? {}
@@ -29,7 +30,9 @@ const caption = ref('')
 const title = ref('')
 const author = ref('')
 const text = ref('')
-const period = ref('')
+const period = ref(init.year ?? init.period ?? '')
+const eventTitle = ref(init.title ?? '')
+const eventDescription = ref(init.description ?? init.text ?? '')
 const docType = ref('Document')
 const file = ref(null)
 const fileName = ref('')
@@ -75,6 +78,9 @@ async function submit() {
     } else if (props.type === 'event') {
       if (!period.value.trim() || !text.value.trim()) { error.value = 'Date et description sont requises.'; return }
       emit('submit', { period: period.value, text: text.value })
+    } else if (props.type === 'edit-event') {
+      if (!period.value.trim() || !eventTitle.value.trim()) { error.value = 'Date et titre sont requis.'; return }
+      emit('submit', { year: period.value, title: eventTitle.value, description: eventDescription.value })
     }
   } finally {
     submitting.value = false
@@ -166,10 +172,19 @@ async function submit() {
           <textarea class="login-input" v-model="text" rows="3" placeholder="Que s'est-il passé ?"></textarea>
         </template>
 
+        <template v-else-if="type === 'edit-event'">
+          <label class="login-label">Date ou période</label>
+          <input class="login-input" v-model="period" type="text" placeholder="Ex. 1995 ou Années 2000">
+          <label class="login-label">Titre</label>
+          <input class="login-input" v-model="eventTitle" type="text">
+          <label class="login-label">Description</label>
+          <textarea class="login-input" v-model="eventDescription" rows="3"></textarea>
+        </template>
+
         <p v-if="error" class="login-error">{{ error }}</p>
 
         <button class="btn btn-yellow login-submit" type="submit" :disabled="submitting">
-          {{ submitting ? 'Enregistrement…' : (type === 'edit-member' ? 'Enregistrer' : 'Ajouter') }}
+          {{ submitting ? 'Enregistrement…' : (type === 'edit-member' || type === 'edit-event' ? 'Enregistrer' : 'Ajouter') }}
         </button>
       </form>
     </div>

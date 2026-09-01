@@ -23,9 +23,9 @@
           <div><strong>Histoires vivantes</strong>Récits, archives et témoignages</div>
           <div><strong>12 territoires</strong>Un patrimoine à parcourir</div>
         </div>
-        <button type="button" class="hero-play-link" aria-label="Lire la vidéo d'introduction">
+        <a href="#histoire-semaine" class="hero-play-link" aria-label="Découvrir l'histoire de la semaine">
           <span class="hero-play-link-icon"></span> Voir le film d'ouverture · 01:42
-        </button>
+        </a>
       </div>
     </div>
   </section>

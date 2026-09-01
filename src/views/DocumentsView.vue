@@ -13,7 +13,7 @@ const { currentUser } = useAuth()
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { space, addDocument } =
+const { space, addDocument, updateDocument, removeDocument } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1561812938-f6e60cbf95e3?auto=format&fit=crop&w=800&q=80'
@@ -109,6 +109,73 @@ function submitDocument(payload) {
   addDocument(payload)
   modal.value = false
 }
+
+const importInput = ref(null)
+function submitImport(e) {
+  const file = e.target.files?.[0]
+  if (!file) return
+  addDocument({
+    title: file.name.replace(/\.[^.]+$/, ''),
+    format: file.name.split('.').pop()?.toUpperCase() ?? 'PDF',
+    category: DOCUMENT_CATEGORIES[0],
+    year: String(new Date().getFullYear()),
+    author: currentUser.value?.fullName ?? 'Vous',
+    image: FALLBACK_IMAGE,
+    addedAt: new Date().toLocaleDateString('fr-FR'),
+  })
+  e.target.value = ''
+}
+
+async function downloadDoc() {
+  if (!selectedDoc.value) return
+  try {
+    const res = await fetch(selectedDoc.value.image)
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${selectedDoc.value.title}.${(selectedDoc.value.format ?? 'jpg').toLowerCase()}`
+    a.click()
+    URL.revokeObjectURL(url)
+  } catch {
+    window.open(selectedDoc.value.image, '_blank')
+  }
+}
+
+const shareFeedback = ref('')
+async function shareDoc() {
+  if (!selectedDoc.value) return
+  const url = `${window.location.origin}/mon-espace/documents`
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: selectedDoc.value.title, url })
+      return
+    } catch {
+      // user cancelled the native share sheet — fall through to clipboard copy
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url)
+    shareFeedback.value = 'Lien copié !'
+  } catch {
+    shareFeedback.value = "Impossible de copier le lien."
+  }
+  setTimeout(() => { shareFeedback.value = '' }, 2500)
+}
+
+const movingDoc = ref(false)
+function moveDoc(category) {
+  if (!selectedDoc.value) return
+  updateDocument(selectedDoc.value.id, { category })
+  movingDoc.value = false
+}
+
+function deleteDoc() {
+  if (!selectedDoc.value) return
+  if (!confirm(`Supprimer « ${selectedDoc.value.title} » ? Cette action est irréversible.`)) return
+  removeDocument(selectedDoc.value.id)
+  selectedId.value = null
+}
 </script>
 
 <template>
@@ -140,7 +207,8 @@ function submitDocument(payload) {
               </div>
               <div class="stories-head-actions">
                 <button type="button" class="btn btn-yellow" @click="modal = 'document'"><Icon name="upload" /> Ajouter un document</button>
-                <button type="button" class="btn btn-light"><Icon name="upload" /> Importer</button>
+                <button type="button" class="btn btn-light" @click="importInput?.click()"><Icon name="upload" /> Importer</button>
+                <input ref="importInput" type="file" class="settings-file-input" @change="submitImport">
               </div>
             </div>
 
@@ -234,10 +302,17 @@ function submitDocument(payload) {
             </div>
 
             <div class="documents-action-row">
-              <button type="button"><Icon name="upload" /> Télécharger</button>
-              <button type="button"><Icon name="expand" /> Partager</button>
-              <button type="button"><Icon name="folder" /> Déplacer</button>
-              <button type="button" class="danger"><Icon name="trash" /> Supprimer</button>
+              <button type="button" @click="downloadDoc"><Icon name="upload" /> Télécharger</button>
+              <button type="button" @click="shareDoc">
+                <Icon name="expand" /> {{ shareFeedback || 'Partager' }}
+              </button>
+              <div class="documents-move-wrap">
+                <button type="button" @click="movingDoc = !movingDoc"><Icon name="folder" /> Déplacer</button>
+                <div v-if="movingDoc" class="documents-move-menu">
+                  <button v-for="c in DOCUMENT_CATEGORIES" :key="c" type="button" @click="moveDoc(c)">{{ c }}</button>
+                </div>
+              </div>
+              <button type="button" class="danger" @click="deleteDoc"><Icon name="trash" /> Supprimer</button>
             </div>
 
             <div class="member-tabs documents-detail-tabs">
@@ -270,7 +345,7 @@ function submitDocument(payload) {
             <div class="documents-privacy-card">
               <strong><Icon name="lock" /> Confidentialité</strong>
               <p>Privé - Visible uniquement par les membres autorisés de la famille.</p>
-              <button type="button">Modifier</button>
+              <RouterLink to="/mon-espace/parametres#confidentialite" class="documents-privacy-edit">Modifier</RouterLink>
             </div>
           </aside>
         </div>

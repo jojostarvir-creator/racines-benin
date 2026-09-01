@@ -127,10 +127,10 @@ function submitEdit(payload) {
                   <div><small>Langue</small><strong>{{ member.languages?.join(', ') }}</strong></div>
                 </div>
 
-                <RouterLink v-if="spouseName(member)" :to="`/mon-espace/membre/${member.id}`" class="member-spouse-chip">
+                <div v-if="spouseName(member)" class="member-spouse-chip">
                   <img v-if="member.spouseInfo?.photo" :src="member.spouseInfo.photo" :alt="spouseName(member)">
                   <div><strong>{{ spouseName(member) }}</strong><small v-if="member.spouseInfo?.years">{{ member.spouseInfo.years }}</small></div>
-                </RouterLink>
+                </div>
 
                 <div v-if="children.length" class="member-children-row">
                   <small>Enfants</small>

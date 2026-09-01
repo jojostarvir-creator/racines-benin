@@ -23,6 +23,15 @@ const selectedId = ref(route.query.person ?? null)
 const selected = computed(() => space?.members.find((m) => m.id === selectedId.value) ?? null)
 const noMoreGenerations = ref(false)
 
+const zoom = ref(100)
+function zoomOut() { zoom.value = Math.max(60, zoom.value - 10) }
+function zoomIn() { zoom.value = Math.min(150, zoom.value + 10) }
+const expanded = ref(false)
+function toggleExpand() {
+  expanded.value = !expanded.value
+  sidebarCollapsed.value = expanded.value
+}
+
 const canvasRef = ref(null)
 const nodeRefs = ref({})
 const connectors = ref([])
@@ -95,10 +104,27 @@ onBeforeUnmount(() => {
 watch(() => noMoreGenerations.value, () => computeConnectors())
 watch(selected, () => computeConnectors())
 watch(() => space?.members.length, () => computeConnectors())
+watch(zoom, () => computeConnectors())
 
 function select(member) {
   selectedId.value = member.id
+  activePanelTab.value = 'info'
 }
+
+const activePanelTab = ref('info')
+const panelFather = computed(() => {
+  const parent = space?.members.find((m) => m.id === selected.value?.parentId)
+  return parent && parent.sex === 'M' ? parent : null
+})
+const panelMother = computed(() => {
+  const parent = space?.members.find((m) => m.id === selected.value?.parentId)
+  return parent && parent.sex !== 'M' ? parent : null
+})
+const panelOtherParent = computed(() => {
+  const parent = space?.members.find((m) => m.id === selected.value?.parentId)
+  return parent?.spouseInfo ?? null
+})
+const panelChildren = computed(() => space?.members.filter((m) => m.parentId === selected.value?.id) ?? [])
 
 const generations = computed(() => {
   if (!space) return []
@@ -217,9 +243,13 @@ function exportTree() {
 
         <div class="tree-page-controls">
           <div class="tree-controls">
-            <button type="button">Vue par générations ⌄</button>
-            <span class="tree-zoom">− 100% +</span>
-            <button type="button" class="tree-expand">⤢</button>
+            <span class="tree-view-label">Vue par générations</span>
+            <span class="tree-zoom">
+              <button type="button" aria-label="Réduire" @click="zoomOut">−</button>
+              {{ zoom }}%
+              <button type="button" aria-label="Agrandir" @click="zoomIn">+</button>
+            </span>
+            <button type="button" class="tree-expand" :aria-label="expanded ? 'Réduire' : 'Agrandir la vue'" @click="toggleExpand">⤢</button>
           </div>
           <div class="tree-page-stats">
             <span><Icon name="star" /> {{ generations.length }} générations</span>
@@ -235,7 +265,7 @@ function exportTree() {
               </svg>
             </div>
 
-            <div class="tree-canvas" ref="canvasRef">
+            <div class="tree-canvas" ref="canvasRef" :style="{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }">
               <svg class="tree-connectors" :width="canvasSize.width" :height="canvasSize.height">
                 <path
                   v-for="(line, i) in connectors"
@@ -300,24 +330,94 @@ function exportTree() {
             </div>
 
             <div class="panel-tabs">
-              <button type="button" class="active"><Icon name="file" /></button>
-              <button type="button"><Icon name="users" /></button>
-              <button type="button"><Icon name="image" /></button>
-              <button type="button"><Icon name="folder" /></button>
-              <button type="button"><Icon name="help" /></button>
+              <button type="button" :class="{ active: activePanelTab === 'info' }" aria-label="Informations" @click="activePanelTab = 'info'"><Icon name="file" /></button>
+              <button type="button" :class="{ active: activePanelTab === 'family' }" aria-label="Liens familiaux" @click="activePanelTab = 'family'"><Icon name="users" /></button>
+              <button type="button" :class="{ active: activePanelTab === 'photos' }" aria-label="Photos" @click="activePanelTab = 'photos'"><Icon name="image" /></button>
+              <button type="button" :class="{ active: activePanelTab === 'documents' }" aria-label="Documents" @click="activePanelTab = 'documents'"><Icon name="folder" /></button>
+              <button type="button" :class="{ active: activePanelTab === 'milestones' }" aria-label="Repères clés" @click="activePanelTab = 'milestones'"><Icon name="help" /></button>
             </div>
 
-            <div class="panel-section">
-              <h4>À propos</h4>
-              <p>{{ selected.bio }}</p>
+            <template v-if="activePanelTab === 'info'">
+              <div class="panel-section">
+                <h4>À propos</h4>
+                <p>{{ selected.bio }}</p>
+              </div>
+
+              <div class="panel-section panel-keyinfo">
+                <h4>Informations clés</h4>
+                <div><span>Date de naissance</span><strong>~{{ selected.birthYear }}</strong></div>
+                <div><span>Lieu de naissance</span><strong>{{ selected.birthPlace }}</strong></div>
+                <div><span>Date de décès</span><strong>{{ selected.deathYear ?? 'Vivant·e' }}</strong></div>
+                <div><span>Lieu de décès</span><strong>{{ selected.deathPlace ?? '—' }}</strong></div>
+              </div>
+            </template>
+
+            <div v-else-if="activePanelTab === 'family'" class="panel-section">
+              <h4>Liens familiaux</h4>
+              <div class="member-links">
+                <template v-if="panelFather || panelOtherParent">
+                  <small class="member-link-label">Père</small>
+                  <RouterLink v-if="panelFather" :to="`/mon-espace/membre/${panelFather.id}`" class="member-link-card">
+                    <img :src="panelFather.photo" :alt="panelFather.name"><div><strong>{{ panelFather.name }}</strong><small>{{ panelFather.years }}</small></div>
+                  </RouterLink>
+                  <div v-else class="member-link-card static">
+                    <img :src="panelOtherParent.photo" :alt="panelOtherParent.name"><div><strong>{{ panelOtherParent.name }}</strong><small>{{ panelOtherParent.years }}</small></div>
+                  </div>
+                </template>
+                <template v-if="panelMother || panelOtherParent">
+                  <small class="member-link-label">Mère</small>
+                  <RouterLink v-if="panelMother" :to="`/mon-espace/membre/${panelMother.id}`" class="member-link-card">
+                    <img :src="panelMother.photo" :alt="panelMother.name"><div><strong>{{ panelMother.name }}</strong><small>{{ panelMother.years }}</small></div>
+                  </RouterLink>
+                  <div v-else class="member-link-card static">
+                    <img :src="panelOtherParent.photo" :alt="panelOtherParent.name"><div><strong>{{ panelOtherParent.name }}</strong><small>{{ panelOtherParent.years }}</small></div>
+                  </div>
+                </template>
+                <template v-if="spouseName(selected)">
+                  <small class="member-link-label">Conjoint(e)</small>
+                  <div class="member-link-card static">
+                    <img v-if="selected.spouseInfo?.photo" :src="selected.spouseInfo.photo" :alt="spouseName(selected)">
+                    <div><strong>{{ spouseName(selected) }}</strong><small v-if="selected.spouseInfo?.years">{{ selected.spouseInfo.years }}</small></div>
+                  </div>
+                </template>
+                <template v-if="panelChildren.length">
+                  <small class="member-link-label">Enfants ({{ panelChildren.length }})</small>
+                  <RouterLink v-for="c in panelChildren" :key="c.id" :to="`/mon-espace/membre/${c.id}`" class="member-link-card compact">
+                    <span>{{ c.name }}</span><small>{{ c.birthYear }} – {{ c.deathYear ?? '' }}</small>
+                  </RouterLink>
+                </template>
+                <p v-if="!panelFather && !panelMother && !panelOtherParent && !spouseName(selected) && !panelChildren.length" class="dashboard-empty">Aucun lien familial enregistré.</p>
+              </div>
             </div>
 
-            <div class="panel-section panel-keyinfo">
-              <h4>Informations clés</h4>
-              <div><span>Date de naissance</span><strong>~{{ selected.birthYear }}</strong></div>
-              <div><span>Lieu de naissance</span><strong>{{ selected.birthPlace }}</strong></div>
-              <div><span>Date de décès</span><strong>{{ selected.deathYear ?? 'Vivant·e' }}</strong></div>
-              <div><span>Lieu de décès</span><strong>{{ selected.deathPlace ?? '—' }}</strong></div>
+            <div v-else-if="activePanelTab === 'photos'" class="panel-section">
+              <h4>Photos</h4>
+              <div v-if="space.photos.length" class="member-media-rail">
+                <img v-for="p in space.photos.slice(0, 6)" :key="p.id" :src="p.src" :alt="p.caption">
+              </div>
+              <p v-else class="dashboard-empty">Aucune photo pour l'instant.</p>
+            </div>
+
+            <div v-else-if="activePanelTab === 'documents'" class="panel-section">
+              <h4>Documents</h4>
+              <div v-if="space.documents.length" class="member-doc-grid">
+                <div class="dashboard-doc" v-for="d in space.documents.slice(0, 4)" :key="d.id">
+                  <img :src="d.src" :alt="d.title">
+                  <strong>{{ d.title }}</strong>
+                </div>
+              </div>
+              <p v-else class="dashboard-empty">Aucun document pour l'instant.</p>
+            </div>
+
+            <div v-else-if="activePanelTab === 'milestones'" class="panel-section">
+              <h4>Repères clés</h4>
+              <div v-if="selected.milestones?.length" class="member-milestones">
+                <div class="member-milestone" v-for="(ms, i) in selected.milestones" :key="i">
+                  <span class="member-milestone-icon"><Icon :name="['gift','file','star','building','clock','users'].includes(ms.icon) ? ms.icon : 'star'" /></span>
+                  <div><strong>{{ ms.year }}</strong><p>{{ ms.text }}</p></div>
+                </div>
+              </div>
+              <p v-else class="dashboard-empty">Aucun repère enregistré.</p>
             </div>
 
             <RouterLink :to="`/mon-espace/membre/${selected.id}`" class="btn btn-light panel-edit">Voir la fiche complète →</RouterLink>
