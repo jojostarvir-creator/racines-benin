@@ -2,10 +2,12 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth, logout } from '../store/auth.js'
+import { useFavorites } from '../store/favorites.js'
 import Icon from './Icon.vue'
 
 const router = useRouter()
 const { currentUser } = useAuth()
+const { favoriteSlugs } = useFavorites()
 const menuOpen = ref(false)
 
 function handleLogout() {
@@ -33,6 +35,9 @@ function handleLogout() {
       </nav>
       <div class="dash-header-actions">
         <button type="button" class="dash-icon-btn" aria-label="Rechercher"><Icon name="search" /></button>
+        <RouterLink to="/favoris" class="dash-icon-btn" aria-label="Mes favoris">
+          <Icon name="heart" /><span v-if="favoriteSlugs.size" class="dash-badge">{{ favoriteSlugs.size }}</span>
+        </RouterLink>
         <button type="button" class="dash-icon-btn" aria-label="Notifications">
           <Icon name="bell" /><span class="dash-badge">3</span>
         </button>

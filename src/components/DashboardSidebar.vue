@@ -18,7 +18,7 @@ const links = [
   { id: 'documents', label: 'Documents', icon: 'file', to: '/mon-espace/documents' },
   { id: 'histoires', label: 'Histoires & anecdotes', icon: 'note', to: '/mon-espace/histoires' },
   { id: 'chronologie', label: 'Ligne du temps', icon: 'clock', to: '/mon-espace/chronologie' },
-  { id: 'parametres', label: 'Paramètres', icon: 'settings', to: '/mon-espace#parametres' },
+  { id: 'parametres', label: 'Paramètres', icon: 'settings', to: '/mon-espace/parametres' },
 ]
 
 const mobileOpen = ref(false)

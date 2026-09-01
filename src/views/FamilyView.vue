@@ -25,6 +25,11 @@ const episodes = [
   { title: "Les descendants racontent", duration: "14 min" },
 ]
 const extraits = ["1:35", "2:10", "1:48", "2:35"]
+
+const videosRef = ref(null)
+function scrollToVideos() {
+  videosRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
 </script>
 
 <template>
@@ -53,7 +58,7 @@ const extraits = ["1:35", "2:10", "1:48", "2:35"]
             <div class="family-badge"><span class="icon-cluster"></span><div><small>Localités associées</small><strong>{{ extras.localities.slice(0, 3).join(', ') }}…</strong></div></div>
           </div>
 
-          <button type="button" class="btn btn-yellow family-play-btn">
+          <button type="button" class="btn btn-yellow family-play-btn" @click="scrollToVideos">
             <span class="family-play-icon"></span> Voir le film de la famille
           </button>
         </div>
@@ -67,32 +72,7 @@ const extraits = ["1:35", "2:10", "1:48", "2:35"]
       </div>
     </section>
 
-    <section class="section family-about">
-      <div class="container family-about-grid-outer">
-        <div class="family-pattern" aria-hidden="true">
-          <span v-for="n in 16" :key="n"></span>
-        </div>
-
-        <div class="family-about-main">
-          <h2>À propos de la famille</h2>
-          <p class="family-about-text">{{ family.description }}</p>
-          <div class="family-verified-badge" :class="{ generated: !extras.verified }">
-            {{ extras.verified ? '✓ Récit vérifié par la famille' : '⚠ Récit généré automatiquement' }}
-          </div>
-        </div>
-
-        <div class="family-about-grid">
-          <div><span class="icon-pin"></span><small>Origine</small><strong>{{ extras.localities[0] }}</strong></div>
-          <div><span class="icon-calendar"></span><small>Première implantation</small><strong>{{ extras.firstImplantation }}</strong></div>
-          <div><span class="icon-bubble"></span><small>Langue historique</small><strong>{{ extras.language }}</strong></div>
-          <div><span class="icon-cluster"></span><small>Localités associées</small><strong>{{ extras.localities.slice(0, 3).join(', ') }}</strong></div>
-          <div><span class="icon-banner"></span><small>Traditions</small><strong>{{ extras.traditions }}</strong></div>
-          <div><span class="icon-shield"></span><small>Statut du récit</small><strong>{{ extras.verified ? 'Vérifié par la famille' : 'Généré automatiquement' }}</strong></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section family-split">
+    <section class="section family-split family-split-first">
       <div class="container family-split-grid">
         <div class="family-history">
           <h2>L'histoire de la famille</h2>
@@ -167,7 +147,7 @@ const extraits = ["1:35", "2:10", "1:48", "2:35"]
 
     <section class="section family-media-row">
       <div class="container family-media-grid">
-        <div class="family-videos">
+        <div class="family-videos" ref="videosRef">
           <h2>Vidéos</h2>
           <button type="button" class="video-main">
             <img :src="family.image" :alt="`Vidéo famille ${family.name}`">

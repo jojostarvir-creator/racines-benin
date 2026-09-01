@@ -12,7 +12,9 @@ import StoriesView from '../views/StoriesView.vue'
 import MemoriesView from '../views/MemoriesView.vue'
 import TimelineView from '../views/TimelineView.vue'
 import DocumentsView from '../views/DocumentsView.vue'
+import SettingsView from '../views/SettingsView.vue'
 import FamiliesDirectoryView from '../views/FamiliesDirectoryView.vue'
+import FavoritesView from '../views/FavoritesView.vue'
 import { useAuth } from '../store/auth.js'
 
 const router = createRouter({
@@ -31,7 +33,9 @@ const router = createRouter({
     { path: '/mon-espace/souvenirs', name: 'memories', component: MemoriesView, meta: { requiresAuth: true, layout: 'dashboard' } },
     { path: '/mon-espace/chronologie', name: 'timeline', component: TimelineView, meta: { requiresAuth: true, layout: 'dashboard' } },
     { path: '/mon-espace/documents', name: 'documents', component: DocumentsView, meta: { requiresAuth: true, layout: 'dashboard' } },
+    { path: '/mon-espace/parametres', name: 'settings', component: SettingsView, meta: { requiresAuth: true, layout: 'dashboard' } },
     { path: '/familles', name: 'directory', component: FamiliesDirectoryView },
+    { path: '/favoris', name: 'favorites', component: FavoritesView },
   ],
   scrollBehavior(to) {
     if (to.hash) {
