@@ -1473,11 +1473,7 @@ footer{padding:55px 0 30px}
   position:absolute;left:0;right:0;bottom:0;padding:8px;font-size:10px;font-weight:700;color:#fff;
   text-transform:uppercase;letter-spacing:.03em;background:linear-gradient(0deg,rgba(0,0,0,.7),transparent);
 }
-.mosaic-tile .favorite-heart{opacity:0;transition:.2s;width:26px;height:26px}
-.mosaic-tile .favorite-heart .ui-icon{width:13px;height:13px}
-.mosaic-tile:hover .favorite-heart,.mosaic-tile .favorite-heart.active{opacity:1}
-
-.directory-hero-scrim{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse at center,rgba(10,7,5,.55) 0%,rgba(10,7,5,.88) 62%,rgba(10,7,5,.96) 100%)}
+.directory-hero-scrim{position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse at center,rgba(10,7,5,.55) 0%,rgba(10,7,5,.88) 62%,rgba(10,7,5,.96) 100%)}
 .directory-hero-inner{position:relative;z-index:2;max-width:640px;margin:0 auto;text-align:center;color:#fff}
 .directory-hero-inner h1{font-size:clamp(30px,4.2vw,50px);line-height:1.18;margin-bottom:16px}
 .directory-hero-subtitle{font-size:15px;color:rgba(255,255,255,.88);margin-bottom:6px}

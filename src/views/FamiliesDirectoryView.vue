@@ -58,11 +58,10 @@ function scrollRow(dept, dir) {
 <template>
   <section class="directory-hero">
     <div class="directory-hero-mosaic" aria-hidden="true">
-      <RouterLink v-for="f in mosaicFamilies" :key="f.slug" :to="`/famille/${f.slug}`" class="mosaic-tile">
+      <div v-for="f in mosaicFamilies" :key="f.slug" class="mosaic-tile">
         <img :src="f.image" :alt="f.name" loading="lazy">
         <span class="mosaic-tile-label">{{ f.name }}</span>
-        <FavoriteHeart :slug="f.slug" />
-      </RouterLink>
+      </div>
     </div>
     <div class="directory-hero-scrim"></div>
 
