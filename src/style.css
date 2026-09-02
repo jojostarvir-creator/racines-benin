@@ -78,13 +78,10 @@ header{
 
 .logo-stack{display:flex;flex-direction:column;align-items:flex-start;flex-shrink:0}
 .logo-word{
-  width:160px;height:42px;background-image:url('/Logo%20Beninto.png');background-repeat:no-repeat;
-  background-size:222px 222px;background-position:-33px -85px;
+  width:182px;height:56px;background-image:url('/beninto-logo.png');background-repeat:no-repeat;
+  background-size:contain;background-position:left center;
 }
-.logo-tagline{
-  width:255px;height:13px;margin-top:1px;background-image:url('/Logo%20Beninto.png');background-repeat:no-repeat;
-  background-size:361px 361px;background-position:-61px -213px;
-}
+.logo-tagline{display:none}
 .logo-text{display:flex;flex-direction:column;line-height:1.15}
 .logo-text small{font-family:var(--body);font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.01em;text-transform:none}
 .nav-links{display:flex;gap:28px;font-size:13px;font-weight:600}
@@ -123,7 +120,7 @@ header{
 .hero{background:var(--cream)}
 .hero-copy{padding:25px 0}
 .hero h1{font-size:clamp(45px,6vw,78px);max-width:680px;margin:18px 0 24px}
-.hero h1 .accent{color:#ef9e12}
+.hero h1 .accent{color:#ec4899}
 .lead{font-size:17px;color:var(--muted);max-width:590px;line-height:1.8;margin-bottom:32px}
 .hero-actions{display:flex;gap:12px;flex-wrap:wrap}
 .hero-note{display:flex;gap:18px;margin-top:34px;padding-top:22px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
