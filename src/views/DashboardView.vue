@@ -54,6 +54,28 @@ function scrollPhotos(dir) {
 
 const playingVideo = ref(null)
 const sidebarCollapsed = ref(false)
+
+const DEFAULT_BLOCK_ORDER = ['tree', 'media1', 'media2', 'chronologie']
+function loadBlockOrder() {
+  try {
+    const raw = localStorage.getItem(`racines_dashboard_order_${currentUser.value?.email}`)
+    const parsed = raw ? JSON.parse(raw) : null
+    if (Array.isArray(parsed) && parsed.length === DEFAULT_BLOCK_ORDER.length && DEFAULT_BLOCK_ORDER.every((id) => parsed.includes(id))) {
+      return parsed
+    }
+  } catch {}
+  return [...DEFAULT_BLOCK_ORDER]
+}
+const blockOrder = ref(loadBlockOrder())
+function moveBlock(id, dir) {
+  const i = blockOrder.value.indexOf(id)
+  const j = i + dir
+  if (j < 0 || j >= blockOrder.value.length) return
+  const next = [...blockOrder.value]
+  ;[next[i], next[j]] = [next[j], next[i]]
+  blockOrder.value = next
+  localStorage.setItem(`racines_dashboard_order_${currentUser.value?.email}`, JSON.stringify(next))
+}
 </script>
 
 <template>
@@ -110,7 +132,17 @@ const sidebarCollapsed = ref(false)
           </div>
         </section>
 
-        <section id="arbre" class="dashboard-card">
+        <div
+          class="dashboard-block"
+          v-for="(blockId, blockIndex) in blockOrder"
+          :key="blockId"
+        >
+        <div class="dashboard-block-reorder">
+          <button type="button" class="dashboard-block-arrow" :disabled="blockIndex === 0" aria-label="Monter cette section" title="Monter cette section" @click="moveBlock(blockId, -1)"><Icon name="chevronLeft" class="icon-up" /></button>
+          <button type="button" class="dashboard-block-arrow" :disabled="blockIndex === blockOrder.length - 1" aria-label="Descendre cette section" title="Descendre cette section" @click="moveBlock(blockId, 1)"><Icon name="chevronLeft" class="icon-down" /></button>
+        </div>
+
+        <section v-if="blockId === 'tree'" id="arbre" class="dashboard-card">
           <div class="dashboard-card-head">
             <h2>Arbre généalogique</h2>
             <span class="tree-privacy"><Icon name="lock" /> Privé</span>
@@ -156,7 +188,7 @@ const sidebarCollapsed = ref(false)
           </div>
         </section>
 
-        <div class="dashboard-media-grid">
+        <div v-else-if="blockId === 'media1'" class="dashboard-media-grid">
           <section id="photos" class="dashboard-card">
             <div class="dashboard-card-head">
               <h2>Photos de famille</h2>
@@ -188,7 +220,7 @@ const sidebarCollapsed = ref(false)
           </section>
         </div>
 
-        <div class="dashboard-media-grid">
+        <div v-else-if="blockId === 'media2'" class="dashboard-media-grid">
           <section id="histoires" class="dashboard-card">
             <div class="dashboard-card-head">
               <h2>Histoires &amp; anecdotes</h2>
@@ -226,7 +258,7 @@ const sidebarCollapsed = ref(false)
           </section>
         </div>
 
-        <section id="chronologie" class="dashboard-card">
+        <section v-else-if="blockId === 'chronologie'" id="chronologie" class="dashboard-card">
           <div class="dashboard-card-head">
             <h2>Ligne du temps familiale</h2>
             <RouterLink to="/mon-espace/chronologie" class="dashboard-add-link">Voir tout →</RouterLink>
@@ -240,6 +272,7 @@ const sidebarCollapsed = ref(false)
             </div>
           </div>
         </section>
+        </div>
 
         <div id="parametres" class="dashboard-footer-notice">
           <div>
