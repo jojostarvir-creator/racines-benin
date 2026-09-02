@@ -1314,6 +1314,14 @@ footer{padding:55px 0 30px}
   .dash-user-info{display:none}
 }
 
+@media(max-width:480px){
+  .dash-header .logo-word{width:128px;height:39px}
+  .dash-header-actions{gap:0}
+  .dash-icon-btn{width:34px;height:34px}
+  .dash-user-menu{margin-left:2px}
+  .dash-user-avatar{width:32px;height:32px}
+}
+
 @media(max-width:700px){
   .member-info-columns{grid-template-columns:1fr}
   .members-grid{grid-template-columns:repeat(2,1fr)}
