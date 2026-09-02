@@ -107,153 +107,50 @@ function submitEdit(payload) {
         </div>
 
         <div class="member-layout">
-          <div class="member-main-col">
-            <div class="dashboard-card member-header-card">
-              <img class="member-photo" :src="member.photo" :alt="member.name">
-              <div class="member-header-info">
-                <div class="member-name-row">
-                  <h2>{{ member.name }}</h2>
-                  <span class="story-count">{{ ordinals[member.generation] ?? member.generation + 'e' }} génération</span>
-                </div>
-                <div class="member-dates-row">
-                  <span><Icon name="calendar" /> {{ member.birthDateFull ?? member.birthYear }}</span>
-                  <span><Icon name="anchor" /> {{ member.birthPlaceFull ?? member.birthPlace }}</span>
-                  <span v-if="member.deathYear"><Icon name="star" /> {{ member.deathDateFull ?? member.deathYear }}</span>
-                </div>
-
-                <div class="member-fact-grid">
-                  <div><small>Alias</small><strong>{{ member.alias }}</strong></div>
-                  <div><small>Profession</small><strong>{{ member.profession }}</strong></div>
-                  <div><small>Langue</small><strong>{{ member.languages?.join(', ') }}</strong></div>
-                </div>
-
-                <div v-if="spouseName(member)" class="member-spouse-chip">
-                  <img v-if="member.spouseInfo?.photo" :src="member.spouseInfo.photo" :alt="spouseName(member)">
-                  <div><strong>{{ spouseName(member) }}</strong><small v-if="member.spouseInfo?.years">{{ member.spouseInfo.years }}</small></div>
-                </div>
-
-                <div v-if="children.length" class="member-children-row">
-                  <small>Enfants</small>
-                  <div class="member-children-avatars">
-                    <template v-for="c in children.slice(0, 5)" :key="c.id ?? c.name">
-                      <RouterLink v-if="c.id" :to="`/mon-espace/membre/${c.id}`">
-                        <img :src="c.photo" :alt="c.name">
-                      </RouterLink>
-                      <span v-else-if="c.photo" class="member-child-avatar" :title="c.name"><img :src="c.photo" :alt="c.name"></span>
-                      <span v-else class="member-child-chip">{{ c.name }}</span>
-                    </template>
-                    <span v-if="children.length > 5" class="member-children-more">+{{ children.length - 5 }}</span>
-                  </div>
-                </div>
+          <div class="dashboard-card member-header-card">
+            <img class="member-photo" :src="member.photo" :alt="member.name">
+            <div class="member-header-info">
+              <div class="member-name-row">
+                <h2>{{ member.name }}</h2>
+                <span class="story-count">{{ ordinals[member.generation] ?? member.generation + 'e' }} génération</span>
+              </div>
+              <div class="member-dates-row">
+                <span><Icon name="calendar" /> {{ member.birthDateFull ?? member.birthYear }}</span>
+                <span><Icon name="anchor" /> {{ member.birthPlaceFull ?? member.birthPlace }}</span>
+                <span v-if="member.deathYear"><Icon name="star" /> {{ member.deathDateFull ?? member.deathYear }}</span>
               </div>
 
-              <div class="member-about-box">
-                <h4>À propos de {{ member.name.split(' ')[0] }}</h4>
-                <p>{{ member.bio }}</p>
-                <div class="member-traits">
-                  <span v-for="(t, i) in member.traits" :key="i" class="member-trait">● {{ t }}</span>
+              <div class="member-fact-grid">
+                <div><small>Alias</small><strong>{{ member.alias }}</strong></div>
+                <div><small>Profession</small><strong>{{ member.profession }}</strong></div>
+                <div><small>Langue</small><strong>{{ member.languages?.join(', ') }}</strong></div>
+              </div>
+
+              <div v-if="spouseName(member)" class="member-spouse-chip">
+                <img v-if="member.spouseInfo?.photo" :src="member.spouseInfo.photo" :alt="spouseName(member)">
+                <div><strong>{{ spouseName(member) }}</strong><small v-if="member.spouseInfo?.years">{{ member.spouseInfo.years }}</small></div>
+              </div>
+
+              <div v-if="children.length" class="member-children-row">
+                <small>Enfants</small>
+                <div class="member-children-avatars">
+                  <template v-for="c in children.slice(0, 5)" :key="c.id ?? c.name">
+                    <RouterLink v-if="c.id" :to="`/mon-espace/membre/${c.id}`">
+                      <img :src="c.photo" :alt="c.name">
+                    </RouterLink>
+                    <span v-else-if="c.photo" class="member-child-avatar" :title="c.name"><img :src="c.photo" :alt="c.name"></span>
+                    <span v-else class="member-child-chip">{{ c.name }}</span>
+                  </template>
+                  <span v-if="children.length > 5" class="member-children-more">+{{ children.length - 5 }}</span>
                 </div>
               </div>
             </div>
 
-            <div class="dashboard-card member-tabs-card">
-              <div class="member-tabs">
-                <button
-                  v-for="tab in tabs" :key="tab.id" type="button"
-                  class="member-tab" :class="{ active: activeTab === tab.id }"
-                  @click="activeTab = tab.id"
-                >
-                  <Icon :name="tab.icon" /> {{ tab.label }}<span v-if="tab.count !== null">&nbsp;({{ tab.count }})</span>
-                </button>
-              </div>
-
-              <div v-if="activeTab === 'info'" class="member-tab-panel">
-                <div class="member-info-columns">
-                  <div>
-                    <h4>Informations personnelles</h4>
-                    <div class="panel-keyinfo">
-                      <div><span>Nom complet</span><strong>{{ member.name }}</strong></div>
-                      <div><span>Date de naissance</span><strong>{{ member.birthYear }}</strong></div>
-                      <div><span>Lieu de naissance</span><strong>{{ member.birthPlace }}</strong></div>
-                      <div><span>Date de décès</span><strong>{{ member.deathYear ?? 'Vivant·e' }}</strong></div>
-                      <div v-if="member.deathPlace"><span>Lieu de décès</span><strong>{{ member.deathPlace }}</strong></div>
-                      <div><span>Sexe</span><strong>{{ member.sex === 'M' ? 'Homme' : 'Femme' }}</strong></div>
-                      <div><span>Langues parlées</span><strong>{{ member.languages?.join(', ') }}</strong></div>
-                      <div><span>Religion</span><strong>{{ member.religion }}</strong></div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4>Repères clés</h4>
-                    <div class="member-milestones">
-                      <div class="member-milestone" v-for="(ms, i) in member.milestones" :key="i">
-                        <span class="member-milestone-icon"><Icon :name="milestoneIcons[ms.icon] ?? 'star'" /></span>
-                        <div><strong>{{ ms.year }}</strong><p>{{ ms.text }}</p></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div class="dashboard-card-head"><h4>Photos ({{ photosForMember.length }})</h4><RouterLink to="/mon-espace#photos" class="dashboard-add-link">Voir tout →</RouterLink></div>
-                    <div v-if="currentPhoto" class="member-carousel">
-                      <button v-if="photosForMember.length > 1" type="button" class="member-carousel-arrow prev" @click="prevPhoto" aria-label="Photo précédente"><Icon name="chevronLeft" /></button>
-                      <img class="member-carousel-photo" :src="currentPhoto.src" :alt="currentPhoto.caption">
-                      <button v-if="photosForMember.length > 1" type="button" class="member-carousel-arrow next" @click="nextPhoto" aria-label="Photo suivante"><Icon name="chevronLeft" /></button>
-                    </div>
-                    <div v-if="photosForMember.length > 1" class="member-carousel-dots">
-                      <button
-                        v-for="(p, i) in photosForMember" :key="p.id" type="button"
-                        class="member-carousel-dot" :class="{ active: i === carouselIndex }"
-                        @click="carouselIndex = i" :aria-label="`Photo ${i + 1}`"
-                      ></button>
-                    </div>
-                    <p v-if="!photosForMember.length" class="dashboard-empty">Aucune photo pour l'instant.</p>
-                    <div class="dashboard-card-head member-doc-head"><h4>Documents ({{ docsForMember.length }})</h4><RouterLink to="/mon-espace#documents" class="dashboard-add-link">Voir tout →</RouterLink></div>
-                    <div class="member-doc-grid">
-                      <div class="dashboard-doc" v-for="d in docsForMember.slice(0, 3)" :key="d.id">
-                        <img :src="d.src" :alt="d.title">
-                        <strong>{{ d.title }}</strong>
-                        <small>{{ d.type }} · {{ ((d.src.length * 37) % 900 + 100) }} Ko</small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div v-else-if="activeTab === 'medias'" class="member-tab-panel">
-                <div class="dashboard-photo-rail">
-                  <img v-for="p in photosForMember" :key="p.id" :src="p.src" :alt="p.caption">
-                </div>
-                <p v-if="!photosForMember.length" class="dashboard-empty">Aucune photo pour l'instant.</p>
-              </div>
-
-              <div v-else-if="activeTab === 'documents'" class="member-tab-panel">
-                <div class="dashboard-doc-grid">
-                  <div class="dashboard-doc" v-for="d in docsForMember" :key="d.id">
-                    <img :src="d.src" :alt="d.title">
-                    <strong>{{ d.title }}</strong>
-                    <small>{{ d.year }}</small>
-                  </div>
-                </div>
-                <p v-if="!docsForMember.length" class="dashboard-empty">Aucun document pour l'instant.</p>
-              </div>
-
-              <div v-else-if="activeTab === 'anecdotes'" class="member-tab-panel">
-                <div class="dashboard-story" v-for="s in storiesForMember" :key="s.id">
-                  <strong>{{ s.title }}</strong>
-                  <small>Récit de {{ s.author }}</small>
-                  <p>{{ s.text }}</p>
-                </div>
-                <p v-if="!storiesForMember.length" class="dashboard-empty">Aucune anecdote pour l'instant.</p>
-              </div>
-
-              <div v-else-if="activeTab === 'evenements'" class="member-tab-panel">
-                <div class="member-milestones">
-                  <div class="member-milestone" v-for="(ms, i) in member.milestones" :key="i">
-                    <span class="member-milestone-icon"><Icon :name="milestoneIcons[ms.icon] ?? 'star'" /></span>
-                    <div><strong>{{ ms.year }}</strong><p>{{ ms.text }}</p></div>
-                  </div>
-                </div>
+            <div class="member-about-box">
+              <h4>À propos de {{ member.name.split(' ')[0] }}</h4>
+              <p>{{ member.bio }}</p>
+              <div class="member-traits">
+                <span v-for="(t, i) in member.traits" :key="i" class="member-trait">● {{ t }}</span>
               </div>
             </div>
           </div>
@@ -304,8 +201,108 @@ function submitEdit(payload) {
                 </template>
               </div>
             </div>
-
           </aside>
+        </div>
+
+        <div class="dashboard-card member-tabs-card">
+          <div class="member-tabs">
+            <button
+              v-for="tab in tabs" :key="tab.id" type="button"
+              class="member-tab" :class="{ active: activeTab === tab.id }"
+              @click="activeTab = tab.id"
+            >
+              <Icon :name="tab.icon" /> {{ tab.label }}<span v-if="tab.count !== null">&nbsp;({{ tab.count }})</span>
+            </button>
+          </div>
+
+          <div v-if="activeTab === 'info'" class="member-tab-panel">
+            <div class="member-info-columns">
+              <div>
+                <h4>Informations personnelles</h4>
+                <div class="panel-keyinfo">
+                  <div><span>Nom complet</span><strong>{{ member.name }}</strong></div>
+                  <div><span>Date de naissance</span><strong>{{ member.birthYear }}</strong></div>
+                  <div><span>Lieu de naissance</span><strong>{{ member.birthPlace }}</strong></div>
+                  <div><span>Date de décès</span><strong>{{ member.deathYear ?? 'Vivant·e' }}</strong></div>
+                  <div v-if="member.deathPlace"><span>Lieu de décès</span><strong>{{ member.deathPlace }}</strong></div>
+                  <div><span>Sexe</span><strong>{{ member.sex === 'M' ? 'Homme' : 'Femme' }}</strong></div>
+                  <div><span>Langues parlées</span><strong>{{ member.languages?.join(', ') }}</strong></div>
+                  <div><span>Religion</span><strong>{{ member.religion }}</strong></div>
+                </div>
+              </div>
+
+              <div>
+                <h4>Repères clés</h4>
+                <div class="member-milestones">
+                  <div class="member-milestone" v-for="(ms, i) in member.milestones" :key="i">
+                    <span class="member-milestone-icon"><Icon :name="milestoneIcons[ms.icon] ?? 'star'" /></span>
+                    <div><strong>{{ ms.year }}</strong><p>{{ ms.text }}</p></div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <div class="dashboard-card-head"><h4>Photos ({{ photosForMember.length }})</h4><RouterLink to="/mon-espace#photos" class="dashboard-add-link">Voir tout →</RouterLink></div>
+                <div v-if="currentPhoto" class="member-carousel">
+                  <button v-if="photosForMember.length > 1" type="button" class="member-carousel-arrow prev" @click="prevPhoto" aria-label="Photo précédente"><Icon name="chevronLeft" /></button>
+                  <img class="member-carousel-photo" :src="currentPhoto.src" :alt="currentPhoto.caption">
+                  <button v-if="photosForMember.length > 1" type="button" class="member-carousel-arrow next" @click="nextPhoto" aria-label="Photo suivante"><Icon name="chevronLeft" /></button>
+                </div>
+                <div v-if="photosForMember.length > 1" class="member-carousel-dots">
+                  <button
+                    v-for="(p, i) in photosForMember" :key="p.id" type="button"
+                    class="member-carousel-dot" :class="{ active: i === carouselIndex }"
+                    @click="carouselIndex = i" :aria-label="`Photo ${i + 1}`"
+                  ></button>
+                </div>
+                <p v-if="!photosForMember.length" class="dashboard-empty">Aucune photo pour l'instant.</p>
+                <div class="dashboard-card-head member-doc-head"><h4>Documents ({{ docsForMember.length }})</h4><RouterLink to="/mon-espace#documents" class="dashboard-add-link">Voir tout →</RouterLink></div>
+                <div class="member-doc-grid">
+                  <div class="dashboard-doc" v-for="d in docsForMember.slice(0, 3)" :key="d.id">
+                    <img :src="d.src" :alt="d.title">
+                    <strong>{{ d.title }}</strong>
+                    <small>{{ d.type }} · {{ ((d.src.length * 37) % 900 + 100) }} Ko</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else-if="activeTab === 'medias'" class="member-tab-panel">
+            <div class="dashboard-photo-rail">
+              <img v-for="p in photosForMember" :key="p.id" :src="p.src" :alt="p.caption">
+            </div>
+            <p v-if="!photosForMember.length" class="dashboard-empty">Aucune photo pour l'instant.</p>
+          </div>
+
+          <div v-else-if="activeTab === 'documents'" class="member-tab-panel">
+            <div class="dashboard-doc-grid">
+              <div class="dashboard-doc" v-for="d in docsForMember" :key="d.id">
+                <img :src="d.src" :alt="d.title">
+                <strong>{{ d.title }}</strong>
+                <small>{{ d.year }}</small>
+              </div>
+            </div>
+            <p v-if="!docsForMember.length" class="dashboard-empty">Aucun document pour l'instant.</p>
+          </div>
+
+          <div v-else-if="activeTab === 'anecdotes'" class="member-tab-panel">
+            <div class="dashboard-story" v-for="s in storiesForMember" :key="s.id">
+              <strong>{{ s.title }}</strong>
+              <small>Récit de {{ s.author }}</small>
+              <p>{{ s.text }}</p>
+            </div>
+            <p v-if="!storiesForMember.length" class="dashboard-empty">Aucune anecdote pour l'instant.</p>
+          </div>
+
+          <div v-else-if="activeTab === 'evenements'" class="member-tab-panel">
+            <div class="member-milestones">
+              <div class="member-milestone" v-for="(ms, i) in member.milestones" :key="i">
+                <span class="member-milestone-icon"><Icon :name="milestoneIcons[ms.icon] ?? 'star'" /></span>
+                <div><strong>{{ ms.year }}</strong><p>{{ ms.text }}</p></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="dashboard-card member-tree-full">
