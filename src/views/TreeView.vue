@@ -184,12 +184,19 @@ function submitEdit(payload) {
 }
 
 const sidebarModal = ref(null)
+const addChildParent = ref(null)
+const sidebarModalTitle = computed(() => (addChildParent.value ? `Compléter la branche de ${addChildParent.value.name}` : null))
 function openSidebarModal(type) { sidebarModal.value = type }
-function closeSidebarModal() { sidebarModal.value = null }
+function closeSidebarModal() { sidebarModal.value = null; addChildParent.value = null }
 function submitSidebarModal(payload) {
-  if (sidebarModal.value === 'member') addMember(payload)
+  if (sidebarModal.value === 'member') addMember({ ...payload, parentId: addChildParent.value?.id ?? null })
   else if (sidebarModal.value === 'anecdote') addStory(payload)
   closeSidebarModal()
+}
+
+function openAddChild(member) {
+  addChildParent.value = member
+  sidebarModal.value = 'member'
 }
 
 function exportTree() {
@@ -280,23 +287,30 @@ function exportTree() {
                 <div class="tree-gen-label">{{ ordinals[gen] ?? gen + 'e' }} génération</div>
                 <div class="tree-gen-nodes">
                   <div class="tree-node-cluster" v-for="cluster in clustersOfGen(gen)" :key="cluster.parentId ?? 'root'">
-                    <button
-                      type="button"
-                      v-for="m in cluster.members"
-                      :key="m.id"
-                      :ref="(el) => setNodeRef(m.id, el)"
-                      class="tree-node-mini"
-                      :class="[`branch-${m.branch}`, `gen-${gen}`, { selected: selectedId === m.id }]"
-                      @click="select(m)"
-                    >
-                      <span class="tree-node-mini-photo"><img :src="m.photo" :alt="m.name"></span>
-                      <span class="tree-node-mini-text">
-                        <strong>{{ m.name }}</strong>
-                        <small>{{ m.years }}</small>
-                        <small class="tree-node-mini-city">{{ m.place }}</small>
-                      </span>
-                      <span class="tree-leaf-icon">🍃</span>
-                    </button>
+                    <div class="tree-node-wrap" v-for="m in cluster.members" :key="m.id">
+                      <button
+                        type="button"
+                        :ref="(el) => setNodeRef(m.id, el)"
+                        class="tree-node-mini"
+                        :class="[`branch-${m.branch}`, `gen-${gen}`, { selected: selectedId === m.id }]"
+                        @click="select(m)"
+                      >
+                        <span class="tree-node-mini-photo"><img :src="m.photo" :alt="m.name"></span>
+                        <span class="tree-node-mini-text">
+                          <strong>{{ m.name }}</strong>
+                          <small>{{ m.years }}</small>
+                          <small class="tree-node-mini-city">{{ m.place }}</small>
+                        </span>
+                        <span class="tree-leaf-icon">🍃</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="tree-node-add-child"
+                        :aria-label="`Ajouter un membre oublié sous ${m.name}`"
+                        :title="`Ajouter un membre oublié sous ${m.name}`"
+                        @click="openAddChild(m)"
+                      >+</button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -387,6 +401,9 @@ function exportTree() {
                   </RouterLink>
                 </template>
                 <p v-if="!panelFather && !panelMother && !panelOtherParent && !spouseName(selected) && !panelChildren.length" class="dashboard-empty">Aucun lien familial enregistré.</p>
+                <button type="button" class="btn btn-light panel-complete-branch" @click="openAddChild(selected)">
+                  <Icon name="users" /> Compléter la branche — ajouter un enfant
+                </button>
               </div>
             </div>
 
@@ -443,7 +460,7 @@ function exportTree() {
     </div>
 
     <QuickAddModal v-if="editingMember" type="edit-member" :initial="editingMember" @close="closeEdit" @submit="submitEdit" />
-    <QuickAddModal v-if="sidebarModal" :type="sidebarModal" @close="closeSidebarModal" @submit="submitSidebarModal" />
+    <QuickAddModal v-if="sidebarModal" :type="sidebarModal" :header-title="sidebarModalTitle" @close="closeSidebarModal" @submit="submitSidebarModal" />
   </div>
 
   <section v-else class="section">

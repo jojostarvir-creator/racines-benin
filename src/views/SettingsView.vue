@@ -132,34 +132,6 @@ function handleLogoutSession() {
   router.push('/')
 }
 
-const importInput = ref(null)
-const importMessage = ref('')
-async function onImportFile(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  try {
-    const text = await file.text()
-    const parsed = JSON.parse(text)
-    const incoming = parsed.space ?? parsed
-    let count = 0
-    if (space && incoming) {
-      for (const key of ['photos', 'documents', 'stories', 'memories']) {
-        if (Array.isArray(incoming[key])) {
-          for (const item of incoming[key]) {
-            if (!space[key].some((existing) => existing.id === item.id)) {
-              space[key].push(item)
-              count += 1
-            }
-          }
-        }
-      }
-    }
-    importMessage.value = count > 0 ? `${count} élément(s) importé(s) avec succès.` : "Fichier lu, mais aucun nouvel élément à importer."
-  } catch {
-    importMessage.value = "Ce fichier n'a pas pu être lu — vérifiez qu'il s'agit bien d'un export Béninto (.json)."
-  }
-  e.target.value = ''
-}
 </script>
 
 <template>
@@ -351,11 +323,6 @@ async function onImportFile(e) {
               <span class="settings-data-icon"><Icon name="upload" /></span>
               <div><strong>Exporter mes données</strong><small>Téléchargez une copie de vos données familiales.</small></div>
             </button>
-            <button type="button" class="settings-data-action" @click="importInput?.click()">
-              <span class="settings-data-icon"><Icon name="upload" /></span>
-              <div><strong>Importer des données</strong><small>{{ importMessage || "Importez un fichier exporté depuis Béninto (.json)." }}</small></div>
-            </button>
-            <input ref="importInput" type="file" accept="application/json" class="settings-file-input" @change="onImportFile">
             <button type="button" class="settings-data-action danger" @click="deleteAccount">
               <span class="settings-data-icon"><Icon name="close" /></span>
               <div><strong>Supprimer mon compte</strong><small>Supprimez définitivement votre compte et toutes vos données.</small></div>

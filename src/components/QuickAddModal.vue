@@ -5,6 +5,7 @@ import { fileToDataUrl } from '../store/familySpace.js'
 const props = defineProps({
   type: { type: String, required: true }, // member | photo | document | anecdote | video | event | edit-member
   initial: { type: Object, default: null },
+  headerTitle: { type: String, default: null },
 })
 const emit = defineEmits(['close', 'submit'])
 
@@ -92,7 +93,7 @@ async function submit() {
   <div class="modal-backdrop" @click.self="$emit('close')">
     <div class="modal-card">
       <div class="modal-head">
-        <h3>{{ titles[type] }}</h3>
+        <h3>{{ headerTitle ?? titles[type] }}</h3>
         <button type="button" class="modal-close" @click="$emit('close')">✕</button>
       </div>
 

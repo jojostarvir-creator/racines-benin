@@ -116,17 +116,6 @@ function submitPhoto(payload) {
   modal.value = null
 }
 
-const importInput = ref(null)
-function submitImport(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = () => {
-    addMemory({ ...newMemoryDefaults(), title: file.name.replace(/\.[^.]+$/, ''), image: reader.result })
-  }
-  reader.readAsDataURL(file)
-  e.target.value = ''
-}
 </script>
 
 <template>
@@ -155,8 +144,6 @@ function submitImport(e) {
               </div>
               <div class="stories-head-actions">
                 <button type="button" class="btn btn-yellow" @click="modal = 'photo'"><Icon name="upload" /> Ajouter un souvenir</button>
-                <button type="button" class="btn btn-light" @click="importInput?.click()"><Icon name="upload" /> Importer</button>
-                <input ref="importInput" type="file" accept="image/*" class="settings-file-input" @change="submitImport">
               </div>
             </div>
 

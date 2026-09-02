@@ -110,22 +110,6 @@ function submitDocument(payload) {
   modal.value = false
 }
 
-const importInput = ref(null)
-function submitImport(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  addDocument({
-    title: file.name.replace(/\.[^.]+$/, ''),
-    format: file.name.split('.').pop()?.toUpperCase() ?? 'PDF',
-    category: DOCUMENT_CATEGORIES[0],
-    year: String(new Date().getFullYear()),
-    author: currentUser.value?.fullName ?? 'Vous',
-    image: FALLBACK_IMAGE,
-    addedAt: new Date().toLocaleDateString('fr-FR'),
-  })
-  e.target.value = ''
-}
-
 async function downloadDoc() {
   if (!selectedDoc.value) return
   try {
@@ -207,8 +191,6 @@ function deleteDoc() {
               </div>
               <div class="stories-head-actions">
                 <button type="button" class="btn btn-yellow" @click="modal = 'document'"><Icon name="upload" /> Ajouter un document</button>
-                <button type="button" class="btn btn-light" @click="importInput?.click()"><Icon name="upload" /> Importer</button>
-                <input ref="importInput" type="file" class="settings-file-input" @change="submitImport">
               </div>
             </div>
 

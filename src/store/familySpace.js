@@ -58,10 +58,12 @@ export function useFamilySpace(email, family, extras) {
 
   function addMember(member) {
     const founderId = space.members[0]?.id ?? null
+    const parentId = member.parentId ?? founderId
+    const parent = space.members.find((m) => m.id === parentId)
     space.members.push({
       id: crypto.randomUUID(),
-      parentId: member.parentId ?? founderId,
-      generation: (space.members[0]?.generation ?? 1) + 1,
+      parentId,
+      generation: (parent?.generation ?? space.members[0]?.generation ?? 1) + 1,
       branch: 'incomplete',
       ...member,
     })

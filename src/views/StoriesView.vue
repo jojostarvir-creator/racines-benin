@@ -116,31 +116,6 @@ function submitShare(payload) {
   shareModal.value = false
 }
 
-const importInput = ref(null)
-function submitImport(e) {
-  const file = e.target.files?.[0]
-  if (!file) return
-  const reader = new FileReader()
-  reader.onload = () => {
-    addStory({
-      type: 'Anecdote',
-      theme: STORY_THEMES[0]?.id ?? 'quotidien',
-      title: file.name.replace(/\.[^.]+$/, ''),
-      text: 'Histoire importée.',
-      excerpt: 'Histoire importée.',
-      author: currentUser.value?.fullName ?? 'Vous',
-      authorId: null,
-      authorPhoto: currentUser.value?.avatar ?? FALLBACK_IMAGE,
-      date: new Date().toISOString().slice(0, 10),
-      readTime: '3 min',
-      comments: 0,
-      image: reader.result,
-      media: null,
-    })
-  }
-  reader.readAsDataURL(file)
-  e.target.value = ''
-}
 </script>
 
 <template>
@@ -167,8 +142,6 @@ function submitImport(e) {
               </div>
               <div class="stories-head-actions">
                 <button type="button" class="btn btn-yellow" @click="shareModal = true"><Icon name="upload" /> Partager une histoire</button>
-                <button type="button" class="btn btn-light" @click="importInput?.click()"><Icon name="upload" /> Importer</button>
-                <input ref="importInput" type="file" accept="image/*" class="settings-file-input" @change="submitImport">
               </div>
             </div>
 
