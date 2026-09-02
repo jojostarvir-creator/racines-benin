@@ -305,33 +305,34 @@ function submitEdit(payload) {
               </div>
             </div>
 
-            <div class="dashboard-card">
-              <h4>Membre dans l'arbre</h4>
-              <div class="member-tree-preview">
-                <RouterLink v-if="treeParent" :to="`/mon-espace/membre/${treeParent.id}`" class="tree-node-mini small-preview">
-                  <span class="tree-node-mini-photo"><img :src="treeParent.photo" :alt="treeParent.name"></span>
-                  <strong>{{ treeParent.name }}</strong><small>{{ treeParent.years }}</small>
-                </RouterLink>
-                <div class="tree-node-mini small-preview current">
-                  <span class="tree-node-mini-photo"><img :src="member.photo" :alt="member.name"></span>
-                  <strong>{{ member.name }}</strong><small>{{ member.years }}</small>
-                </div>
-                <div class="member-tree-preview-children" v-if="children.length">
-                  <template v-for="c in children.slice(0, 2)" :key="c.id ?? c.name">
-                    <RouterLink v-if="c.id" :to="`/mon-espace/membre/${c.id}`" class="tree-node-mini small-preview">
-                      <span class="tree-node-mini-photo"><img :src="c.photo" :alt="c.name"></span>
-                      <strong>{{ c.name }}</strong><small>{{ c.birthYear }}</small>
-                    </RouterLink>
-                    <div v-else class="tree-node-mini small-preview">
-                      <span class="tree-node-mini-photo"><img :src="c.photo" :alt="c.name"></span>
-                      <strong>{{ c.name }}</strong><small>{{ c.years }}</small>
-                    </div>
-                  </template>
-                </div>
-              </div>
-              <RouterLink :to="{ path: '/mon-espace/arbre', query: { person: member.id } }" class="dashboard-add-link">Voir dans l'arbre généalogique →</RouterLink>
-            </div>
           </aside>
+        </div>
+
+        <div class="dashboard-card member-tree-full">
+          <h4>Membre dans l'arbre</h4>
+          <div class="member-tree-preview">
+            <RouterLink v-if="treeParent" :to="`/mon-espace/membre/${treeParent.id}`" class="tree-node-mini small-preview">
+              <span class="tree-node-mini-photo"><img :src="treeParent.photo" :alt="treeParent.name"></span>
+              <strong>{{ treeParent.name }}</strong><small>{{ treeParent.years }}</small>
+            </RouterLink>
+            <div class="tree-node-mini small-preview current">
+              <span class="tree-node-mini-photo"><img :src="member.photo" :alt="member.name"></span>
+              <strong>{{ member.name }}</strong><small>{{ member.years }}</small>
+            </div>
+            <div class="member-tree-preview-children" v-if="children.length">
+              <template v-for="c in children.slice(0, 2)" :key="c.id ?? c.name">
+                <RouterLink v-if="c.id" :to="`/mon-espace/membre/${c.id}`" class="tree-node-mini small-preview">
+                  <span class="tree-node-mini-photo"><img :src="c.photo" :alt="c.name"></span>
+                  <strong>{{ c.name }}</strong><small>{{ c.birthYear }}</small>
+                </RouterLink>
+                <div v-else class="tree-node-mini small-preview">
+                  <span class="tree-node-mini-photo"><img :src="c.photo" :alt="c.name"></span>
+                  <strong>{{ c.name }}</strong><small>{{ c.years }}</small>
+                </div>
+              </template>
+            </div>
+          </div>
+          <RouterLink :to="{ path: '/mon-espace/arbre', query: { person: member.id } }" class="dashboard-add-link">Voir dans l'arbre généalogique →</RouterLink>
         </div>
       </main>
     </div>
