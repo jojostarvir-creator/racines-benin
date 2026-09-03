@@ -956,3 +956,277 @@ export function buildDocumentsFeed(family, extras, members) {
   const rng = mulberry32(hashString(`${family.slug}:documents`))
   return genericDocumentsFeed(family, extras, members, rng)
 }
+
+// ============ GROUP MESSAGING (chat, cotisations, events) ============
+
+function houedjiMessagesFeed(members) {
+  const mathieu = findMember(members, 'Mathieu Houédji')
+  const marie = findMember(members, 'Marie Houédji')
+  const jean = findMember(members, 'Jean Houédji')
+  const paul = findMember(members, 'Paul Houédji')
+  const victoire = findMember(members, 'Victoire Houédji')
+  const antoine = findMember(members, 'Antoine Houédji')
+
+  const raw = [
+    { author: mathieu, text: "Bonjour à tous ! J'espère que vous allez bien 🙏", daysAgo: 6, hm: '08:12' },
+    { author: marie, text: "Bonjour Papa Mathieu ! Tout va bien à Cotonou, merci.", daysAgo: 6, hm: '08:20' },
+    { author: jean, text: "On commence déjà à parler de la réunion de fin d'année, qui est partant ?", daysAgo: 6, hm: '09:05' },
+    { author: paul, text: "Présent ! On peut la faire à Ouidah comme l'an dernier.", daysAgo: 6, hm: '09:11' },
+    { author: victoire, text: "Je préparerai la sauce comme d'habitude 😄", daysAgo: 5, hm: '19:42' },
+    { author: antoine, text: "N'oubliez pas la cotisation du mois, merci à ceux qui ont déjà payé 🙏", daysAgo: 4, hm: '12:00' },
+    { author: jean, text: "C'est fait de mon côté ✅", daysAgo: 4, hm: '12:04' },
+    { author: marie, text: "Je paye ce soir sans faute.", daysAgo: 4, hm: '12:30' },
+    { author: mathieu, text: "Merci à tous pour votre solidarité, notre famille est unie 🙏", daysAgo: 3, hm: '20:15' },
+    { author: paul, text: "Belle photo partagée par Victoire dans les souvenirs, ça m'a rappelé de bons moments.", daysAgo: 2, hm: '10:22' },
+    { author: victoire, text: "Merci Paul ❤️ J'en ai retrouvé d'autres, je les ajoute cette semaine.", daysAgo: 2, hm: '10:40' },
+    { author: antoine, text: "Qui vient à la cérémonie à Ouidah le mois prochain ?", daysAgo: 1, hm: '17:05' },
+    { author: jean, text: "Présent avec toute ma famille.", daysAgo: 1, hm: '17:20' },
+    { author: mathieu, text: "On se retrouve dimanche comme prévu, n'oubliez pas !", daysAgo: 0, hm: '09:00' },
+  ]
+
+  return raw.map((m, i) => ({
+    id: `msg-${i}`,
+    authorId: m.author.id,
+    authorName: m.author.name,
+    authorPhoto: m.author.photo,
+    text: m.text,
+    daysAgo: m.daysAgo,
+    hm: m.hm,
+  }))
+}
+
+const messageTemplates = [
+  () => `Bonjour à tous ! Comment allez-vous ?`,
+  (m) => `Merci à ${m} pour les bonnes nouvelles aujourd'hui 😊`,
+  (m, loc) => `On organise une rencontre à ${loc} bientôt, qui est partant ?`,
+  (m) => `Merci ${m}, ça fait plaisir de se retrouver ici.`,
+  () => `N'oubliez pas la cotisation du mois, merci à ceux qui ont déjà payé 🙏`,
+  (m) => `${m} vient de rejoindre le groupe, souhaitons-lui la bienvenue !`,
+  (m, loc) => `Qui vient à la cérémonie à ${loc} ce weekend ?`,
+  (m) => `Merci pour vos prières pour la famille de ${m} 🙏`,
+  (m) => `Belle photo partagée par ${m} dans les souvenirs, merci !`,
+  (m) => `On pense à organiser une cagnotte de solidarité pour ${m}.`,
+  (m) => `Joyeux anniversaire à ${m} 🎉🎂`,
+  (m) => `${m}, tu peux nous envoyer les photos de la dernière fête ?`,
+  () => `Merci à tous pour votre solidarité, notre famille est unie 🙏`,
+  () => `On se retrouve dimanche comme prévu, n'oubliez pas !`,
+  (m) => `${m} a partagé une nouvelle histoire, allez la lire !`,
+]
+
+function genericMessagesFeed(family, extras, members, rng) {
+  const pool = members.length ? members : [{ id: 'x', name: family.name, photo: PORTRAIT_POOL[0] }]
+  const count = 14
+  return Array.from({ length: count }).map((_, i) => {
+    const author = pick(rng, pool)
+    const authorFirst = author.name.split(' ')[0]
+    const locality = pick(rng, extras.localities)
+    const template = pick(rng, messageTemplates)
+    const daysAgo = Math.max(0, 6 - Math.floor(i / 2.3))
+    const hm = `${8 + Math.floor(rng() * 12)}:${String(Math.floor(rng() * 60)).padStart(2, '0')}`
+    return {
+      id: `msg-${i}`,
+      authorId: author.id,
+      authorName: author.name,
+      authorPhoto: author.photo,
+      text: template(authorFirst, locality),
+      daysAgo,
+      hm,
+    }
+  })
+}
+
+export function buildMessagesFeed(family, extras, members) {
+  const raw = family.slug === 'houedji'
+    ? houedjiMessagesFeed(members)
+    : genericMessagesFeed(family, extras, members, mulberry32(hashString(`${family.slug}:messages`)))
+
+  const now = new Date()
+  return raw.map((m) => {
+    const d = new Date(now)
+    d.setDate(d.getDate() - m.daysAgo)
+    const [h, min] = m.hm.split(':')
+    d.setHours(Number(h), Number(min), 0, 0)
+    return { ...m, createdAt: d.toISOString() }
+  })
+}
+
+export const COTISATION_PURPOSES = [
+  'Réunion annuelle de la famille',
+  'Fonds de solidarité familiale',
+  'Cérémonie traditionnelle',
+  'Aide pour les obsèques',
+  'Fête de fin d’année',
+  'Construction de la maison familiale',
+  'Bourse pour les études',
+]
+
+function houedjiCotisationsFeed(members) {
+  const mathieu = findMember(members, 'Mathieu Houédji')
+  const marie = findMember(members, 'Marie Houédji')
+  const jean = findMember(members, 'Jean Houédji')
+  const paul = findMember(members, 'Paul Houédji')
+  const victoire = findMember(members, 'Victoire Houédji')
+  const antoine = findMember(members, 'Antoine Houédji')
+
+  const raw = [
+    { member: mathieu, amount: 15000, purpose: 'Réunion annuelle de la famille', daysAgo: 20, status: 'Payé' },
+    { member: marie, amount: 10000, purpose: 'Réunion annuelle de la famille', daysAgo: 19, status: 'Payé' },
+    { member: jean, amount: 15000, purpose: 'Réunion annuelle de la famille', daysAgo: 18, status: 'Payé' },
+    { member: paul, amount: 10000, purpose: 'Réunion annuelle de la famille', daysAgo: 15, status: 'Payé' },
+    { member: victoire, amount: 20000, purpose: 'Aide pour les obsèques', daysAgo: 40, status: 'Payé' },
+    { member: antoine, amount: 20000, purpose: 'Aide pour les obsèques', daysAgo: 38, status: 'Payé' },
+    { member: mathieu, amount: 25000, purpose: 'Construction de la maison familiale', daysAgo: 70, status: 'Payé' },
+    { member: jean, amount: 5000, purpose: 'Fonds de solidarité familiale', daysAgo: 5, status: 'En attente' },
+    { member: paul, amount: 5000, purpose: 'Fonds de solidarité familiale', daysAgo: 5, status: 'En attente' },
+    { member: marie, amount: 10000, purpose: 'Bourse pour les études', daysAgo: 12, status: 'Payé' },
+  ]
+
+  return raw.map((c, i) => ({
+    id: `cotis-${i}`,
+    memberId: c.member.id,
+    memberName: c.member.name,
+    memberPhoto: c.member.photo,
+    amount: c.amount,
+    purpose: c.purpose,
+    daysAgo: c.daysAgo,
+    status: c.status,
+  }))
+}
+
+function genericCotisationsFeed(family, extras, members, rng) {
+  const pool = members.length ? members : [{ id: 'x', name: family.name, photo: PORTRAIT_POOL[0] }]
+  const count = 10
+  return Array.from({ length: count }).map((_, i) => {
+    const member = pick(rng, pool)
+    const amount = (2 + Math.floor(rng() * 9)) * 2500
+    const purpose = pick(rng, COTISATION_PURPOSES)
+    const daysAgo = 3 + Math.floor(rng() * 80)
+    const status = rng() > 0.2 ? 'Payé' : 'En attente'
+    return {
+      id: `cotis-${i}`,
+      memberId: member.id,
+      memberName: member.name,
+      memberPhoto: member.photo,
+      amount,
+      purpose,
+      daysAgo,
+      status,
+    }
+  })
+}
+
+export function buildCotisationsFeed(family, extras, members) {
+  const raw = family.slug === 'houedji'
+    ? houedjiCotisationsFeed(members)
+    : genericCotisationsFeed(family, extras, members, mulberry32(hashString(`${family.slug}:cotisations`)))
+
+  const now = new Date()
+  return raw.map((c) => {
+    const d = new Date(now)
+    d.setDate(d.getDate() - c.daysAgo)
+    return { ...c, date: d.toISOString().slice(0, 10) }
+  })
+}
+
+function houedjiGroupEventsFeed(members) {
+  const mathieu = findMember(members, 'Mathieu Houédji')
+  const marie = findMember(members, 'Marie Houédji')
+  const jean = findMember(members, 'Jean Houédji')
+  const paul = findMember(members, 'Paul Houédji')
+  const victoire = findMember(members, 'Victoire Houédji')
+
+  const raw = [
+    {
+      title: 'Réunion annuelle de la famille Houédji', daysFromNow: 40, location: 'Ouidah, Atlantique',
+      description: "Rencontre annuelle pour se retrouver, partager un repas et faire le point sur les projets de la famille.",
+      comments: [
+        { author: marie, text: "J'ai hâte, ça fait longtemps qu'on ne s'est pas tous vus !" },
+        { author: paul, text: "Je m'occupe des boissons comme d'habitude." },
+        { author: jean, text: "On peut prévoir un moment pour les photos de famille aussi." },
+      ],
+    },
+    {
+      title: "Cérémonie de commémoration d'Ahahnanzo Houédji", daysFromNow: 75, location: 'Ouidah, Atlantique',
+      description: "Cérémonie en mémoire de notre ancêtre fondateur, avec un moment de recueillement et de partage des récits familiaux.",
+      comments: [
+        { author: victoire, text: "Je préparerai quelques anecdotes à raconter aux plus jeunes." },
+        { author: mathieu, text: "Merci d'avance à tous ceux qui pourront se déplacer." },
+      ],
+    },
+    {
+      title: 'Fête de fin d’année', daysFromNow: 110, location: 'Cotonou, Littoral',
+      description: "Notre traditionnelle fête de fin d'année, ouverte à toute la famille élargie.",
+      comments: [
+        { author: jean, text: "On peut réserver la même salle que l'an dernier ?" },
+        { author: marie, text: "Bonne idée, je me renseigne cette semaine." },
+        { author: paul, text: "Je m'occupe de la musique !" },
+      ],
+    },
+  ]
+
+  return raw.map((e, i) => ({
+    id: `event-${i}`,
+    title: e.title,
+    daysFromNow: e.daysFromNow,
+    location: e.location,
+    description: e.description,
+    comments: e.comments.map((c, j) => ({
+      id: `event-${i}-comment-${j}`,
+      authorId: c.author.id,
+      authorName: c.author.name,
+      authorPhoto: c.author.photo,
+      text: c.text,
+    })),
+  }))
+}
+
+const eventTitleTemplates = [
+  (loc) => `Réunion annuelle de la famille à ${loc}`,
+  (loc) => `Cérémonie traditionnelle à ${loc}`,
+  () => `Fête de fin d'année`,
+  (loc) => `Rencontre des cousins à ${loc}`,
+]
+
+function genericGroupEventsFeed(family, extras, members, rng) {
+  const pool = members.length ? members : [{ id: 'x', name: family.name, photo: PORTRAIT_POOL[0] }]
+  const count = 3
+  return Array.from({ length: count }).map((_, i) => {
+    const locality = pick(rng, extras.localities)
+    const template = pick(rng, eventTitleTemplates)
+    const title = template(locality)
+    const daysFromNow = 20 + i * 35 + Math.floor(rng() * 20)
+    const commentCount = 1 + Math.floor(rng() * 3)
+    const comments = Array.from({ length: commentCount }).map((_, j) => {
+      const author = pick(rng, pool)
+      const text = pick(rng, [
+        "J'ai hâte de vous retrouver !",
+        "Je peux aider pour l'organisation.",
+        "On peut prévoir un moment pour les photos.",
+        "Merci à ceux qui organisent, c'est important pour la famille.",
+        "Je confirme ma présence.",
+      ])
+      return { id: `event-${i}-comment-${j}`, authorId: author.id, authorName: author.name, authorPhoto: author.photo, text }
+    })
+    return {
+      id: `event-${i}`,
+      title,
+      daysFromNow,
+      location: locality,
+      description: `Un moment pour se retrouver et renforcer les liens de la famille ${family.name}.`,
+      comments,
+    }
+  })
+}
+
+export function buildGroupEventsFeed(family, extras, members) {
+  const raw = family.slug === 'houedji'
+    ? houedjiGroupEventsFeed(members)
+    : genericGroupEventsFeed(family, extras, members, mulberry32(hashString(`${family.slug}:group-events`)))
+
+  const now = new Date()
+  return raw.map((e) => {
+    const d = new Date(now)
+    d.setDate(d.getDate() + e.daysFromNow)
+    return { ...e, date: d.toISOString().slice(0, 10) }
+  })
+}

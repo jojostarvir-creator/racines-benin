@@ -1,7 +1,10 @@
 import { reactive } from 'vue'
-import { buildFamilyTree, buildStoriesFeed, buildMemoriesFeed, buildTimelineFeed, buildDocumentsFeed } from '../data/familyProfileExtras.js'
+import {
+  buildFamilyTree, buildStoriesFeed, buildMemoriesFeed, buildTimelineFeed, buildDocumentsFeed,
+  buildMessagesFeed, buildCotisationsFeed, buildGroupEventsFeed,
+} from '../data/familyProfileExtras.js'
 
-const TREE_VERSION = 6
+const TREE_VERSION = 7
 
 function storageKey(email) {
   return `racines_space_${email}`
@@ -29,8 +32,15 @@ function seedFromFamily(family, extras) {
   const memories = buildMemoriesFeed(family, extras, members).map((m) => ({ id: crypto.randomUUID(), ...m }))
   const videos = []
   const timeline = buildTimelineFeed(family, extras, members).map((t) => ({ id: crypto.randomUUID(), ...t }))
+  const groupMessages = buildMessagesFeed(family, extras, members).map((m) => ({ id: crypto.randomUUID(), ...m }))
+  const cotisations = buildCotisationsFeed(family, extras, members).map((c) => ({ id: crypto.randomUUID(), ...c }))
+  const groupEvents = buildGroupEventsFeed(family, extras, members).map((e) => ({
+    id: crypto.randomUUID(),
+    ...e,
+    comments: e.comments.map((c) => ({ id: crypto.randomUUID(), ...c })),
+  }))
 
-  return { members, photos, documents, stories, memories, videos, timeline, treeVersion: TREE_VERSION }
+  return { members, photos, documents, stories, memories, videos, timeline, groupMessages, cotisations, groupEvents, treeVersion: TREE_VERSION }
 }
 
 const cache = new Map()
@@ -113,9 +123,24 @@ export function useFamilySpace(email, family, extras) {
   function updateTimelineEvent(id, patch) { updateInCollection('timeline', id, patch) }
   function removeTimelineEvent(id) { removeFromCollection('timeline', id) }
 
+  function addGroupMessage(message) {
+    space.groupMessages.push({ id: crypto.randomUUID(), createdAt: new Date().toISOString(), ...message })
+    save()
+  }
+  function addCotisation(cotisation) {
+    space.cotisations.unshift({ id: crypto.randomUUID(), date: new Date().toISOString().slice(0, 10), status: 'Payé', ...cotisation })
+    save()
+  }
+  function addEventComment(eventId, comment) {
+    const event = space.groupEvents.find((e) => e.id === eventId)
+    if (event) event.comments.push({ id: crypto.randomUUID(), ...comment })
+    save()
+  }
+
   return {
     space, addMember, updateMember, addPhoto, addMemory, addDocument, addStory, addVideo, addTimelineEvent,
     updateDocument, removeDocument, updateTimelineEvent, removeTimelineEvent,
+    addGroupMessage, addCotisation, addEventComment,
   }
 }
 
