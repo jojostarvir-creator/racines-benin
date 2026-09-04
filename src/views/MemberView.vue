@@ -16,7 +16,7 @@ const { currentUser } = useAuth()
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { space, updateMember } =
+const { space, updateMember, addMember } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
 
 const member = computed(() => space?.members.find((m) => m.id === route.params.id) ?? null)
@@ -85,12 +85,18 @@ function submitEdit(payload) {
   updateMember(member.value.id, payload)
   editing.value = false
 }
+
+const inviting = ref(false)
+function submitInvite(payload) {
+  addMember(payload)
+  inviting.value = false
+}
 </script>
 
 <template>
   <div v-if="family && extras && space && member" class="dashboard">
     <div class="container dashboard-layout">
-      <DashboardSidebar :family="family" :extras="extras" active-id="membres" />
+      <DashboardSidebar :family="family" :extras="extras" active-id="membres" @invite="inviting = true" />
 
       <main class="dashboard-main">
         <div class="member-breadcrumb">
@@ -335,6 +341,7 @@ function submitEdit(payload) {
     </div>
 
     <QuickAddModal v-if="editing" type="edit-member" :initial="member" @close="editing = false" @submit="submitEdit" />
+    <QuickAddModal v-if="inviting" type="member" @close="inviting = false" @submit="submitInvite" />
   </div>
 
   <section v-else class="section">

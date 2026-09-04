@@ -13,7 +13,7 @@ const { currentUser } = useAuth()
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { space, addDocument, updateDocument, removeDocument } =
+const { space, addDocument, updateDocument, removeDocument, addMember } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1561812938-f6e60cbf95e3?auto=format&fit=crop&w=800&q=80'
@@ -109,6 +109,10 @@ function submitDocument(payload) {
   addDocument(payload)
   modal.value = false
 }
+function submitMember(payload) {
+  addMember(payload)
+  modal.value = false
+}
 
 async function downloadDoc() {
   if (!selectedDoc.value) return
@@ -168,7 +172,7 @@ function deleteDoc() {
       <DashboardSidebar
         :family="family" :extras="extras" active-id="documents"
         quote="Nos archives d'aujourd'hui sont la mémoire de demain."
-        @invite="modal = 'invite'"
+        @invite="modal = 'member'"
         @add-souvenir="modal = 'document'"
       />
 
@@ -335,5 +339,6 @@ function deleteDoc() {
     </div>
 
     <QuickAddModal v-if="modal === 'document'" type="document" @close="modal = false" @submit="submitDocument" />
+    <QuickAddModal v-if="modal === 'member'" type="member" @close="modal = false" @submit="submitMember" />
   </div>
 </template>

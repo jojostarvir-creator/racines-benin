@@ -5,6 +5,7 @@ import { getOrCreateFamily } from '../data/familyDirectory.js'
 import { enrichFamily, COTISATION_PURPOSES } from '../data/familyProfileExtras.js'
 import { useFamilySpace } from '../store/familySpace.js'
 import DashboardSidebar from '../components/DashboardSidebar.vue'
+import QuickAddModal from '../components/QuickAddModal.vue'
 import Icon from '../components/Icon.vue'
 
 const { currentUser } = useAuth()
@@ -12,8 +13,14 @@ const { currentUser } = useAuth()
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { space, addGroupMessage, addCotisation, addEventComment } =
+const { space, addGroupMessage, addCotisation, addEventComment, addMember } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
+
+const inviting = ref(false)
+function submitInvite(payload) {
+  addMember(payload)
+  inviting.value = false
+}
 
 const activeTab = ref('discussion')
 const tabs = [
@@ -125,7 +132,7 @@ function submitComment(eventId) {
 <template>
   <div v-if="family && extras && space" class="dashboard">
     <div class="container dashboard-layout">
-      <DashboardSidebar :family="family" :extras="extras" active-id="messagerie" quote="Une famille qui se parle est une famille qui reste unie." />
+      <DashboardSidebar :family="family" :extras="extras" active-id="messagerie" quote="Une famille qui se parle est une famille qui reste unie." @invite="inviting = true" />
 
       <main class="dashboard-main">
         <div class="member-breadcrumb">
@@ -259,6 +266,8 @@ function submitComment(eventId) {
         </form>
       </div>
     </div>
+
+    <QuickAddModal v-if="inviting" type="member" @close="inviting = false" @submit="submitInvite" />
   </div>
 
   <section v-else class="section">

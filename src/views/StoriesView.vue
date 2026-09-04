@@ -13,8 +13,14 @@ const { currentUser } = useAuth()
 const family = computed(() => getOrCreateFamily(currentUser.value?.familyName ?? ''))
 const extras = computed(() => (family.value ? enrichFamily(family.value) : null))
 
-const { space, addStory } =
+const { space, addStory, addMember } =
   family.value && extras.value ? useFamilySpace(currentUser.value.email, family.value, extras.value) : { space: null }
+
+const inviting = ref(false)
+function submitInvite(payload) {
+  addMember(payload)
+  inviting.value = false
+}
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?auto=format&fit=crop&w=800&q=80'
 const normalizedStories = computed(() => {
@@ -124,6 +130,7 @@ function submitShare(payload) {
       <DashboardSidebar
         :family="family" :extras="extras" active-id="histoires"
         quote="Chaque histoire racontée, chaque anecdote partagée, c'est une racine qui se renforce. – Proverbe africain"
+        @invite="inviting = true"
       />
 
       <main class="dashboard-main">
@@ -279,5 +286,6 @@ function submitShare(payload) {
     </div>
 
     <QuickAddModal v-if="shareModal" type="anecdote" @close="shareModal = false" @submit="submitShare" />
+    <QuickAddModal v-if="inviting" type="member" @close="inviting = false" @submit="submitInvite" />
   </div>
 </template>
