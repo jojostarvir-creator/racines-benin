@@ -16,10 +16,6 @@ const POSTER = 'https://images.unsplash.com/photo-1521119989659-a83eee488004?aut
           <a class="btn btn-yellow" href="#familles">Explorer les familles →</a>
           <a class="btn btn-light" href="#contribuer">Raconter mon histoire</a>
         </div>
-        <div class="hero-note">
-          <div><strong>Histoires vivantes</strong>Récits, archives et témoignages</div>
-          <div><strong>12 territoires</strong>Un patrimoine à parcourir</div>
-        </div>
       </div>
 
       <button type="button" class="hero-video-card" @click="lightboxOpen = true" aria-label="Voir le film d'ouverture">
